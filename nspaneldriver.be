@@ -248,69 +248,67 @@ class Nextion : Driver
       log('NXP: Switch state updated with ' + json_payload)
       self.send(json_payload)
     end
-
-    def set_date()
-        var now = tasmota.rtc()
-        var time_raw = now['local']
-        var nsp_time = tasmota.time_dump(time_raw)
-        var date_payload = '{"date":"' + str(nsp_time['day']) + "|" + str(nsp_time['month']) + "|" + str(nsp_time['year']) + '"}'
-        self.sendnx(date_payload)  
-        log('Date update for NSP ' + date_payload)
-        #print(date_payload) 
-    end
+# sunny 0 (7)
+# partlycloudy 1 (5)
+# cloudy 2 (8)
+# really cloudly 3 (2)
+# light rain 4 (4)
+# heavy rain 5 (3)
+# snow 6 (6)
+# unknown 7 (9)
 
     def set_weather()
         import json
         var weather_icon = {
-        "": 1,      # Unknown             
-        "113": 9,    # Sunny      
-        "116": 7,    # PartlyCloudy   
-        "119": 4,    # Cloudy             
-        "122": 10,   # VeryCloudy           
-        "143": 10,   # Fog                 
-        "176": 6,   # LightShowers     
-        "179": 6,   # LightSleetShowers 
-        "182": 6,   # LightSleet        
-        "185": 6,   # LightSleet        
-        "200": 6,   # ThunderyShowers  
-        "227": 8,   # LightSnow  
-        "230": 8,   # HeavySnow        
-        "248": 1,   # Fog                 
-        "260": 1,   # Fog                 
-        "263": 6,   # LightShowers     
-        "266": 6,   # LightRain      
-        "281": 6,   # LightSleet        
-        "284": 6,   # LightSleet        
-        "293": 6,   # LightRain      
-        "296": 6,   # LightRain      
+        "": 7,      # Unknown             
+        "113": 0,    # Sunny      
+        "116": 1,    # PartlyCloudy   
+        "119": 2,    # Cloudy             
+        "122": 3,   # VeryCloudy           
+        "143": 2,   # Fog                 
+        "176": 4,   # LightShowers     
+        "179": 4,   # LightSleetShowers 
+        "182": 4,   # LightSleet        
+        "185": 4,   # LightSleet        
+        "200": 4,   # ThunderyShowers  
+        "227": 6,   # LightSnow  
+        "230": 6,   # HeavySnow        
+        "248": 2,   # Fog                 
+        "260": 2,   # Fog                 
+        "263": 4,   # LightShowers     
+        "266": 4,   # LightRain      
+        "281": 4,   # LightSleet        
+        "284": 4,   # LightSleet        
+        "293": 4,   # LightRain      
+        "296": 4,   # LightRain      
         "299": 5,   # HeavyShowers      
         "302": 5,   # HeavyRain        
         "305": 5,   # HeavyShowers      
         "308": 5,   # HeavyRain        
-        "311": 5,   # LightSleet        
-        "314": 5,   # LightSleet        
-        "317": 5,   # LightSleet        
-        "320": 8,   # LightSnow  
-        "323": 8,   # LightSnowShowers 
-        "326": 8,   # LightSnowShowers 
-        "329": 8,   # HeavySnow        
-        "332": 8,   # HeavySnow        
-        "335": 8,   # HeavySnowShowers   
-        "338": 8,   # HeavySnow        
-        "350": 6,   # LightSleet        
-        "353": 6,   # LightSleet        
+        "311": 4,   # LightSleet        
+        "314": 4,   # LightSleet        
+        "317": 4,   # LightSleet        
+        "320": 6,   # LightSnow  
+        "323": 6,   # LightSnowShowers 
+        "326": 6,   # LightSnowShowers 
+        "329": 6,   # HeavySnow        
+        "332": 6,   # HeavySnow        
+        "335": 6,   # HeavySnowShowers   
+        "338": 6,   # HeavySnow        
+        "350": 4,   # LightSleet        
+        "353": 4,   # LightSleet        
         "356": 5,   # HeavyShowers      
         "359": 5,   # HeavyRain        
-        "362": 6,   # LightSleetShowers 
-        "365": 6,   # LightSleetShowers 
-        "368": 6,   # LightSnowShowers 
-        "371": 8,   # HeavySnowShowers   
-        "374": 6,   # LightSleetShowers 
-        "377": 6,   # LightSleet        
-        "386": 5,   # ThunderyShowers  
+        "362": 4,   # LightSleetShowers 
+        "365": 4,   # LightSleetShowers 
+        "368": 4,   # LightSnowShowers 
+        "371": 6,   # HeavySnowShowers   
+        "374": 4,   # LightSleetShowers 
+        "377": 4,   # LightSleet        
+        "386": 4,   # ThunderyShowers  
         "389": 5,   # ThunderyHeavyRain  
-        "392": 5,   # ThunderySnowShowers
-        "395": 5,   # HeavySnowShowers   
+        "392": 6,   # ThunderySnowShowers
+        "395": 6,   # HeavySnowShowers   
         }   
 
         var cl = webclient()
@@ -333,30 +331,29 @@ class Nextion : Driver
         end
     end
 
-    def weather_trigger() # Starts a delay of 20 seconds so the weather is not updated at the same time as the clock and date
-        tasmota.set_timer(20000,/->self.set_weather())
+    def weather_trigger()
+        tasmota.set_timer(20000,/->self.set_weather()) 
     end
+
     # It updates clock and date for 10 cycles then it updates the clock the date and then the weather and repeats
-    def set_clock()
-      tasmota.set_timer(10000,/->self.set_date())
-      var now = tasmota.rtc()
-      var time_raw = now['local']
-      var nsp_time = tasmota.time_dump(time_raw)
-      if nsp_time['min'] <= 9
-        var time_payload =  '{"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
-        self.sendnx(time_payload)
-        log('Time update for NSP ' + time_payload)
-        #print(time_payload)
-      else 
-        var time_payload =  '{"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
-        self.sendnx(time_payload)
-        log('Time update for NSP ' + time_payload)
-        #print(time_payload)
-      end    
+    def set_date()
+        var now = tasmota.rtc()
+        var time_raw = now['local']
+        var nsp_time = tasmota.time_dump(time_raw)  
+
+        if nsp_time['min'] <= 9
+            var date_payload = '{"date":"' + str(nsp_time['day']) + "|" + str(nsp_time['month']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
+            self.sendnx(date_payload)
+            log('Time update for NSP ' + date_payload)
+          else 
+            var date_payload = '{"date":"' + str(nsp_time['day']) + "|" + str(nsp_time['month']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
+            self.sendnx(date_payload)
+            log('Time update for NSP ' + date_payload)
+        end    
+
     end
 
     def open_url(url)
-
         import string
         var host
         var port
@@ -547,11 +544,10 @@ tasmota.add_cmd('InstallNxPanel', install_nxpanel)
 
 tasmota.add_rule("power1#state", /-> nextion.set_power())
 tasmota.add_rule("power2#state", /-> nextion.set_power())
-tasmota.add_rule("Time#Minute", /-> nextion.set_clock())
+tasmota.add_rule("Time#Minute", /-> nextion.set_date())
 tasmota.add_rule("Time#Minute|10", /-> nextion.weather_trigger())
-tasmota.add_rule("config#v", /a,b,c-> nextion.update_trigger(a,b,c))
-tasmota.set_timer(20000,/->nextion.weather_trigger()) # Runs the initial screen update
-tasmota.set_timer(20000,/->nextion.set_clock()) 
+tasmota.set_timer(20000,/->nextion.set_date()) 
+tasmota.set_timer(40000,/->nextion.weather_trigger()) 
 tasmota.cmd("Rule3 1") # needed until Berry bug fixed
 tasmota.cmd("State")
 

@@ -105,36 +105,13 @@ class Nextion : Driver
         end
     end
 
-    def write_to_nextion(b)
-        self.ser.write(b)
-    end
-
     def screeninit()
         log("NXP: Screen Initialized", 1) 
         self.sendnx("berry.txt=\""+self.VERSION+"\"")
         self.sendnx("recmod=1")
-        tasmota.delay(50)
-        self.set_power()
-        import persist
-        if persist.has("config")
-            var m = map()
-            m.setitem("config",persist.config)
-            var s = m.tostring()
-            var json = ""
-            for i: 0..size(s)-1
-                if s[i]=="'"
-                    json += '"'
-                else
-                    json += s[i]
-                end
-            end
-            log("NXP: Restoring: "+json)
-            self.send(json)
-        end
     end
 
     def write_block()
-        
         import string
         log("FLH: Read block",3)
         while size(self.flash_buff)<self.flash_block_size && self.tcp.connected()
@@ -177,7 +154,7 @@ class Nextion : Driver
 
     end
 
-    def every_100ms()
+    def every_50ms()
         import string
         if self.ser.available() > 0
             var msg = self.ser.read()
@@ -199,24 +176,15 @@ class Nextion : Driver
                     elif size(msg)==1 && msg[0]==0x05
                         self.write_block()
                     else
-                        log("FLH: Something has gone wrong flashing nxpanel ["+str(msg)+"]",2)
+                        log("FLH: Something has gone wrong flashing firmware ["+str(msg)+"]",2)
                     end
                 else
                     var msg_list = self.split_msg(msg)
                     for i:0..size(msg_list)-1
                         msg = msg_list[i]
-                        if size(msg) > 0
-                            if msg == bytes('000000FFFFFF88FFFFFF')
-                                self.screeninit()
-                            elif msg[0]==0x7B # JSON, starting with "{"
-                                var jm = string.format("%s",msg[0..-1].asstring())
-                                tasmota.publish_result(jm, "RESULT")        
-                            elif msg[0]==0x07 && size(msg)==1 # BELL/Buzzer
-                                tasmota.cmd("buzzer 1,1")
-                            else
-                                var jm = string.format("{\"nextion\":\"%s\"}",str(msg[0..-4]))
-                                tasmota.publish_result(jm, "RESULT")        
-                            end
+                        if size(msg) > 0    
+                            var jm = string.format("%s",msg[0..-1].asstring()) # Prints result as a string
+                            tasmota.publish_result(jm, "RESULT")        
                         end       
                     end
                 end
@@ -234,28 +202,15 @@ class Nextion : Driver
         self.flash_mode = 1
         self.sendnx("connect")        
     end
-    
-    def set_power()
-      var ps = tasmota.get_power()
-      for i:0..1
-        if ps[i] == true
-          ps[i] = "1"
-        else 
-          ps[i] = "0"
-        end
-      end
-      var json_payload = '{ "switches": { "switch1": ' + ps[0] + ' , "switch2": ' + ps[1] +  ' } }'
-      log('NXP: Switch state updated with ' + json_payload)
-      self.send(json_payload)
-    end
-# sunny 0 (7)
-# partlycloudy 1 (5)
-# cloudy 2 (8)
-# really cloudly 3 (2)
-# light rain 4 (4)
-# heavy rain 5 (3)
-# snow 6 (6)
-# unknown 7 (9)
+
+    # sunny 0 (7)
+    # partlycloudy 1 (5)
+    # cloudy 2 (8)
+    # really cloudly 3 (2)
+    # light rain 4 (4)
+    # heavy rain 5 (3)
+    # snow 6 (6)
+    # unknown 7 (9)
 
     def set_weather()
         import json
@@ -310,7 +265,6 @@ class Nextion : Driver
         "392": 6,   # ThunderySnowShowers
         "395": 6,   # HeavySnowShowers   
         }   
-
         var cl = webclient()
         var url = "http://wttr.in/" + "36.3048,-86.6200" + '?format=j2'
         cl.set_useragent("curl/7.72.0")      
@@ -331,10 +285,6 @@ class Nextion : Driver
         end
     end
 
-    def weather_trigger()
-        tasmota.set_timer(20000,/->self.set_weather()) 
-    end
-
     # It updates clock and date for 10 cycles then it updates the clock the date and then the weather and repeats
     def set_date()
         var now = tasmota.rtc()
@@ -342,14 +292,18 @@ class Nextion : Driver
         var nsp_time = tasmota.time_dump(time_raw)  
 
         if nsp_time['min'] <= 9
-            var date_payload = '{"date":"' + str(nsp_time['day']) + "|" + str(nsp_time['month']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
+            var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
             self.sendnx(date_payload)
-            log('Time update for NSP ' + date_payload)
+            log('NSP: Time update for NSP ' + date_payload)
           else 
-            var date_payload = '{"date":"' + str(nsp_time['day']) + "|" + str(nsp_time['month']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
+            var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
             self.sendnx(date_payload)
-            log('Time update for NSP ' + date_payload)
+            log('NSP: Time update for NSP ' + date_payload)
         end    
+
+        if nsp_time['min'] % 10 == 0 # Every 10 minutes update the weather
+            tasmota.set_timer(20000,/->self.set_weather()) 
+        end
 
     end
 
@@ -434,63 +388,9 @@ class Nextion : Driver
     end
 
     def flash_nextion(url)
-
         self.flash_size = 0
         self.open_url(url)
         self.begin_nextion_flash()
-
-    end
-
-    def version_number(str)
-        import string
-        var i1 = string.find(str,".",0)
-        var i2 = string.find(str,".",i1+1)
-        var num = int(str[0..i1-1])*10000+int(str[i1+1..i2-1])*100+int(str[i2+1..])
-        return num
-    end
-
-    def update_trigger (value, trigger, msg)
-        log("NXP: persist msg: "+str(msg),3)
-        import persist
-        persist.config = msg.item("config")
-        persist.save()
-        log("NXP: persist saved",3)
-        if self.auto_update_flag==0
-            return
-        end
-        self.auto_update_flag = 0
-        import string
-        var url = nil
-        if msg.item("config").item("at")==1
-            log("NXP: Update check for 'testing'")
-            url = "http://proto.systems/nxpanel/version-testing.txt"
-        elif msg.item("config").item("au")==1
-            log("NXP: Update check for 'release'")
-            url = "http://proto.systems/nxpanel/version-release.txt"
-        else
-            log("NXP: No auto update active")
-        end
-        if url!=nil
-            var web = webclient()
-            log("FLH: Open: "+url,3)
-            web.begin(url)
-            log("FLH: GET ...",3)
-            var r = web.GET()
-            log("FLH: STAT "+str(r),3)
-            var ver = web.get_string()
-            var i=string.find(ver,"\n")
-            if i>0
-                ver = ver[0..i-1]
-            end
-            if self.version_number(ver)>self.version_number(value)
-                log("NXP: Newer version available - "+ver)
-                url = "http://proto.systems/nxpanel/nxpanel-"+ver+".tft"
-                tasmota.set_timer(100,/->self.flash_nextion(url))
-            else
-                log("NXP: Current version "+value+" is latest")
-            end
-            web.close()
-        end
     end
 
     def init()
@@ -499,12 +399,6 @@ class Nextion : Driver
         self.sendnx('DRAKJHSUYDGBNCJHGJKSHBDN')
         self.sendnx('rest')
         self.flash_mode = 0
-    end
-
-    def install()
-
-        self.flash_nextion("http://proto.systems/nxpanel/nxpanel-latest.tft")
-
     end
 
 end
@@ -521,34 +415,14 @@ def flash_nextion(cmd, idx, payload, payload_json)
     tasmota.resp_cmnd_done()
 end
 
-def send_cmd(cmd, idx, payload, payload_json)
+def send_cmd(cmd, idx, payload, payload_json) # Sends command via serial with nextion end of FFFFFF
     nextion.sendnx(payload)
-    tasmota.resp_cmnd_done()
-end
-
-def send_cmd2(cmd, idx, payload, payload_json)
-    nextion.send(payload)
-    tasmota.resp_cmnd_done()
-end
-
-def install_nxpanel()
-    tasmota.set_timer(50,/->nextion.install())
-    tasmota.resp_cmnd_done()
 end
 
 tasmota.add_cmd('Nextion', send_cmd)
-tasmota.add_cmd('Screen', send_cmd2)
-tasmota.add_cmd('NxPanel', send_cmd2)
 tasmota.add_cmd('FlashNextion', flash_nextion)
-tasmota.add_cmd('InstallNxPanel', install_nxpanel)
-
-tasmota.add_rule("power1#state", /-> nextion.set_power())
-tasmota.add_rule("power2#state", /-> nextion.set_power())
 tasmota.add_rule("Time#Minute", /-> nextion.set_date())
-tasmota.add_rule("Time#Minute|10", /-> nextion.weather_trigger())
 tasmota.set_timer(20000,/->nextion.set_date()) 
-tasmota.set_timer(40000,/->nextion.weather_trigger()) 
+tasmota.set_timer(40000,/->nextion.set_weather()) 
 tasmota.cmd("Rule3 1") # needed until Berry bug fixed
 tasmota.cmd("State")
-
-

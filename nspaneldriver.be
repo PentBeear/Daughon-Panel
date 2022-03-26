@@ -92,7 +92,7 @@ class Nextion : Driver
         import string
         var payload_bin = self.encodenx(payload)
         self.ser.write(payload_bin)
-        log(string.format("NXP: Nextion command sent = %s",str(payload_bin)), 3)       
+        log(string.format("NXP: Nextion command sent = %s",str(payload_bin)))       
     end
 
     def send(payload)
@@ -266,7 +266,7 @@ class Nextion : Driver
         "395": 6,   # HeavySnowShowers   
         }   
         var cl = webclient()
-        var url = "http://wttr.in/" + "36.3048,-86.6200" + '?format=j2' # Placeholder of nashville change to where you want
+        var url = "http://wttr.in/" + "putlocal" + '?format=j2'
         cl.set_useragent("curl/7.72.0")      
         cl.begin(url)
         if cl.GET() == "200" || cl.GET() == 200
@@ -393,12 +393,14 @@ class Nextion : Driver
         self.begin_nextion_flash()
     end
 
-    def init()
+    def init() 
         log("NXP: Initializing Driver")
         self.ser = serial(17, 16, 115200, serial.SERIAL_8N1)
         self.sendnx('DRAKJHSUYDGBNCJHGJKSHBDN')
         self.sendnx('rest')
         self.flash_mode = 0
+        tasmota.set_timer(20000,/->tasmota.publish_result('{"status":"init"}', "RESULT")) 
+        log("NXP: Sent Init")
     end
 
 end

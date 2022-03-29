@@ -92,7 +92,7 @@ class Nextion : Driver
         import string
         var payload_bin = self.encodenx(payload)
         self.ser.write(payload_bin)
-        log(string.format("NXP: Nextion command sent = %s",str(payload_bin)))       
+        #log(string.format("NXP: Nextion command sent = %s",str(payload_bin)))       
     end
 
     def send(payload)
@@ -266,7 +266,7 @@ class Nextion : Driver
         "395": 6,   # HeavySnowShowers   
         }   
         var cl = webclient()
-        var url = "http://wttr.in/" + "putlocal" + '?format=j2'
+        var url = "http://wttr.in/" + "code here" + '?format=j2' 
         cl.set_useragent("curl/7.72.0")      
         cl.begin(url)
         if cl.GET() == "200" || cl.GET() == 200
@@ -274,12 +274,12 @@ class Nextion : Driver
             var temp = b['current_condition'][0]['temp_F']
             var tmin = b['weather'][0]['mintempF']
             var tmax = b['weather'][0]['maxtempF']
-            var wttr = '{"weather":"' + temp + '","' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + '"}'
+            var wttr = '{"weather":"' + temp + 'F' + '","' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + '"}'
             #var wttr = '{"HMI_weather":' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + ',"HMI_outdoorTemp":{"current":' + temp + ',"range":" ' + tmin + ', ' + tmax + '"}}'
             self.sendnx(wttr)
             log('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'])
             #print('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'] + " " + wttr)
-            else
+        else
             log('NSP: Weather update failed!', 3)     
             print("Failed") 
         end
@@ -291,14 +291,27 @@ class Nextion : Driver
         var time_raw = now['local']
         var nsp_time = tasmota.time_dump(time_raw)  
 
-        if nsp_time['min'] <= 9
-            var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
-            self.sendnx(date_payload)
-            log('NSP: Time update for NSP ' + date_payload)
-          else 
-            var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
-            self.sendnx(date_payload)
-            log('NSP: Time update for NSP ' + date_payload)
+        if nsp_time['min'] <= 9 # Adds a 0 to pad the time if the minute is less than 9
+            if nsp_time['hour'] > 12 # Converts to 12 hour time formatting instead of 24
+                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":0" + str(nsp_time['min']) + '"}'
+                self.sendnx(date_payload)
+                log('NSP: Time update for NSP ' + date_payload)
+            else
+                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
+                self.sendnx(date_payload)
+                log('NSP: Time update for NSP ' + date_payload)
+            end
+        else 
+            if nsp_time['hour'] > 12
+                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":" + str(nsp_time['min']) + '"}'
+                self.sendnx(date_payload)
+                log('NSP: Time update for NSP ' + date_payload)
+            else
+                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
+                self.sendnx(date_payload)
+                log('NSP: Time update for NSP ' + date_payload)
+            end
+            
         end    
 
         if nsp_time['min'] % 10 == 0 # Every 10 minutes update the weather

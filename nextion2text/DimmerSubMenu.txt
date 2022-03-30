@@ -1,0 +1,295 @@
+Page DimmerSubMenu
+    Attributes
+        ID                                  : 0
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        Locked                              : no
+        Swide up page ID                    : disabled
+        Swide down page ID                  : disabled
+        Swide left page ID                  : disabled
+        Swide right page ID                 : disabled
+    
+    Events
+        Preinitialize Event
+            // Is a submenu for handling the changing of light colors
+            // Uses the global variable lightsubid to select which light was long pressed on
+            dim=varstor.brightness.val
+            // Sets the light submenu to the proper name based on received id from the devices panel
+            varstor.pagereceived.val=0 // Resets page received check
+            name.txt=varstor.smtrigname.txt
+            // Requests extra information about the item
+            prints "{\"request\":\"btn\",\"page\":\"",0
+            covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+            prints varstor.numtotxt.txt,0
+            prints "\",\"btn\":\"",0
+            covx varstor.smtrigid.val,varstor.numtotxt.txt,0,0
+            prints varstor.numtotxt.txt,0
+            prints "\"}",0
+            // This is read using the regular serial parser!!!
+            // Pages are read with a special timer just for them as its important to be able to use the page
+            // and wait for an update at the same time
+            // values that can be returned are numbered so 1 2 3 4
+            // 1 could = 100 and 1 could be a name for the brightness slider
+            // brightness can be set with {"1":"100"}
+        
+Variable (int32) d
+    Attributes
+        ID   : 6
+        Scope: local
+        Value: 0
+    
+Text tw
+    Attributes
+        ID                                  : 5
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        Associated Keyboard                 : none
+        Text                                : D
+        Max. Text Size                      : 10
+    
+Text name
+    Attributes
+        ID                                  : 9
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        Associated Keyboard                 : none
+        Text                                : null
+        Max. Text Size                      : 20
+    
+Picture background
+    Attributes
+        ID                                  : 1
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+    
+Slider dslider
+    Attributes
+        ID                                  : 4
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        Position                            : 50
+        Upper range limit                   : 100
+        Lower range limit                   : 0
+    
+    Events
+        Touch Press Event
+            // reset device timer
+            d.val=dslider.val
+            // Sets the device status to on if you change any value here
+            if(varstor.smtrigid.val==0)
+            {
+                SixBtn.bt0state.val=1
+            }
+            if(varstor.smtrigid.val==1)
+            {
+                SixBtn.bt1state.val=1
+            }
+            if(varstor.smtrigid.val==2)
+            {
+                SixBtn.bt2state.val=1
+            }
+            if(varstor.smtrigid.val==3)
+            {
+                SixBtn.bt3state.val=1
+            }
+            if(varstor.smtrigid.val==4)
+            {
+                SixBtn.bt4state.val=1
+            }
+            if(varstor.smtrigid.val==5)
+            {
+                SixBtn.bt5state.val=1
+            }
+        
+        Touch Release Event
+            // Disables serial before sending a message
+            sreadbuffer.en=0
+            d.val=dslider.val
+            prints "{\"page\":\"",0
+            covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+            prints varstor.numtotxt.txt,0
+            prints "\",\"btn\":\"",0
+            covx varstor.smtrigid.val,varstor.numtotxt.txt,0,0
+            prints varstor.numtotxt.txt,0
+            prints "\",\"update\":\"dimmer\",\"d\":\"",0
+            covx d.val,varstor.numtotxt.txt,0,0
+            prints varstor.numtotxt.txt,0
+            prints "\"}",0
+            // Re enables serial
+            sreadbuffer.en=1
+            // {"page":"1","btn":"0","update":"dimmer","d":"82"}
+        
+Button bt0
+    Attributes
+        ID                                  : 8
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        State                               : unpressed
+        Text                                : f
+        Max. Text Size                      : 4
+    
+    Events
+        Touch Press Event
+            page varstor.smlastpage.val
+        
+Timer kickout
+    Attributes
+        ID         : 2
+        Scope      : local
+        Period (ms): 15000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            // Kicks out of the submenu after 15 seconds
+            if(varstor.disgth.val==0)
+            {
+                page varstor.smlastpage.val // Goes to the last page (usually a device selection page)
+            }
+        
+Timer sreadbuffer
+    Attributes
+        ID         : 3
+        Scope      : local
+        Period (ms): 500
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            // Check the ReadBuffer
+            if(usize>=3)  // this takes into account the  "(1 " 3 characters with the space
+            {
+                // If the size is greater than 3 and the last one is the end marker keep waiting
+                if(varstor.buff.txt!="}")
+                {
+                    varstor.serror.val++
+                    varstor.buff.txt="0"
+                    ucopy varstor.buff.txt,usize-4,usize-3,0
+                    substr varstor.buff.txt,varstor.buff.txt,0,1
+                }else
+                {
+                    varstor.serror.val=0
+                    // In this scenario we got the message end mark so we can parse it
+                    // Status update
+                    // Data received
+                    ucopy varstor.buff.txt,0,usize-3,0  //copy all data from buffer to the variable data.txt and remove header
+                    // prints buff.txt,0 // prints what you sent
+                    // clear buffer
+                    code_c
+                    // Weather Parser
+                    // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
+                    // {"weather":"22","233"}
+                    spstr varstor.buff.txt,varstor.com.txt,"{\"weather\":",1 // {"weather":"22","233"}
+                    spstr varstor.com.txt,varstor.com.txt,"\",",0
+                    strlen varstor.com.txt,varstor.txttonum.val
+                    if(varstor.txttonum.val>2) // If weather update did happen we can also check if its raining
+                    {
+                        substr varstor.com.txt,varstor.tempstor.txt,1,5
+                        spstr varstor.buff.txt,varstor.com.txt,"\",",1
+                        spstr varstor.com.txt,varstor.com.txt,"\"}",0
+                        substr varstor.com.txt,varstor.com.txt,1,3
+                        covx varstor.com.txt,varstor.weatherstor.val,0,0 // extracts number and sets the weather icon
+                        // prints "{\"status\":\"weather_updated\"}",0
+                    }
+                    varstor.com.txt=""// Reset Value
+                    // End Weather Parser
+                    //
+                    // Date Parser
+                    // Valid formats: Them being two seperate json parses lets the user use three different formats
+                    // {"date":"02|28|2022","time":"50:20"}
+                    // {"time":"50:20"}
+                    // {"date":"02|28|2020"}
+                    spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
+                    spstr varstor.com.txt,varstor.com.txt,"\",\"time\"",0 // ","time"
+                    strlen varstor.com.txt,varstor.txttonum.val
+                    if(varstor.txttonum.val>2)
+                    {
+                        varstor.datestor.txt=varstor.com.txt
+                    }
+                    varstor.com.txt="" // Reset value
+                    spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
+                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                    strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
+                    if(varstor.txttonum.val>2)
+                    {
+                        varstor.timestor.txt=varstor.com.txt
+                        //prints "{\"status\":\"date_updated\"}",0
+                    }
+                    // End Date Parser
+                    //
+                    // Notification Parser {"notification":""}
+                    spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
+                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                    varstor.notification.txt=varstor.com.txt
+                    // End Notification Parser
+                    // Action  Parser
+                    spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
+                    spstr varstor.com.txt,varstor.com.txt,"\"",0 // "}
+                    strlen varstor.com.txt,varstor.txttonum.val
+                    if(varstor.txttonum.val>1)
+                    {
+                        if(varstor.com.txt=="wake")
+                        {
+                            page Home
+                            dim=varstor.brightness.val
+                        }
+                        if(varstor.com.txt=="dim")
+                        {
+                            spstr varstor.buff.txt,varstor.com.txt,"\",\"value\":\"",1 // ","value":"
+                            spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            varstor.brightness.val=varstor.txttonum.val
+                            dim=varstor.brightness.val
+                        }
+                        if(varstor.com.txt=="sleep")
+                        {
+                            dim=0
+                            page Sleep
+                        }
+                    }
+                    // End Action Parser
+                    // Btn Result Parser
+                    // 1 is brightness
+                    spstr varstor.buff.txt,varstor.com.txt,"{\"1\":\"",1 // {"1":"
+                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                    strlen varstor.com.txt,varstor.txttonum.val
+                    if(varstor.txttonum.val>=1) // Parses the brightness slider result
+                    {
+                        covx varstor.com.txt,varstor.txttonum.val,0,0
+                        dslider.val=varstor.txttonum.val
+                    }
+                    // End Btn Result Parser
+                }
+                // After 10 tries (5 seconds) of failing to receive a full messsage the buffer resets
+                if(varstor.serror.val>=10)
+                {
+                    code_c
+                    varstor.serror.val=0
+                }
+            }
+        
+TouchCap tc0
+    Attributes
+        ID   : 7
+        Scope: local
+        Value: 0
+    
+    Events
+        Touch Press Event
+            dim=varstor.brightness.val // Set brightness to saved value (from HA)
+            // This makes it so if you tap the screen it resets the timers of going to sleep
+            kickout.en=0
+            kickout.en=1 // Enable timer to calc down for dimming screen
+        

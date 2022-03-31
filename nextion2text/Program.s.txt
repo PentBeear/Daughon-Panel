@@ -1,5 +1,0 @@
-Program.s
-    //The following code is only run once when power on, and is generally used for global variable definition and power on initialization data
-    int startx,endx,starty,endy,diff,tolery=120,tolerx=80,toleryn=-120,tolerxn=-80,sys0=0,sys1=0,sys2=0    //At present, the definition of global variable only supports 4-byte signed integer (int), and other types of global quantity declaration are not supported. If you want to use string type, you can use variable control in the page to implement
-    page Home                       //Power on start page 0
-    prints "{\"status\":\"init\"}",0

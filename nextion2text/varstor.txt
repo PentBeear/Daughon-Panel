@@ -1,0 +1,179 @@
+Page varstor
+    Attributes
+        ID                                  : 0
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        Locked                              : no
+        Swide up page ID                    : disabled
+        Swide down page ID                  : disabled
+        Swide left page ID                  : disabled
+        Swide right page ID                 : disabled
+    
+    Events
+        Preinitialize Event
+            // This is just a global variable storage page
+            varstor.pagereceived.val=0 // Resets page received check
+        
+Variable (string) buff
+    Attributes
+        ID            : 1
+        Scope         : global
+        Text          : 
+        Max. Text Size: 350
+    
+Variable (string) com
+    Attributes
+        ID            : 2
+        Scope         : global
+        Text          : newtxt
+        Max. Text Size: 350
+    
+Variable (int32) weatherstor
+    Attributes
+        ID   : 3
+        Scope: global
+        Value: 2
+    
+Variable (string) timestor
+    Attributes
+        ID            : 4
+        Scope         : global
+        Text          : 00|00
+        Max. Text Size: 10
+    
+Variable (string) datestor
+    Attributes
+        ID            : 5
+        Scope         : global
+        Text          : --|--|----
+        Max. Text Size: 10
+    
+Variable (string) tempstor
+    Attributes
+        ID            : 6
+        Scope         : global
+        Text          : 000
+        Max. Text Size: 10
+    
+Variable (int32) smtrigid
+    Attributes
+        ID   : 7
+        Scope: global
+        Value: 999
+    
+Variable (int32) currentpage
+    Attributes
+        ID   : 8
+        Scope: global
+        Value: 0
+    
+Variable (string) pagename
+    Attributes
+        ID            : 9
+        Scope         : global
+        Text          : 
+        Max. Text Size: 10
+    
+Variable (string) pagetype
+    Attributes
+        ID            : 10
+        Scope         : global
+        Text          : 
+        Max. Text Size: 10
+    
+Variable (string) pageinfo
+    Attributes
+        ID            : 11
+        Scope         : global
+        Text          : 
+        Max. Text Size: 350
+    
+Variable (int32) pagereceived
+    Attributes
+        ID   : 12
+        Scope: global
+        Value: 0
+    
+Variable (string) numtotxt
+    Attributes
+        ID            : 13
+        Scope         : global
+        Text          : 
+        Max. Text Size: 10
+    
+Variable (int32) txttonum
+    Attributes
+        ID   : 14
+        Scope: global
+        Value: 0
+    
+Variable (string) smtrigname
+    Attributes
+        ID            : 15
+        Scope         : global
+        Text          : 
+        Max. Text Size: 20
+    
+Variable (int32) smlastpage
+    Attributes
+        ID   : 16
+        Scope: global
+        Value: 0
+    
+Variable (string) notification
+    Attributes
+        ID            : 17
+        Scope         : global
+        Text          : 
+        Max. Text Size: 256
+    
+Variable (int32) notiflength
+    Attributes
+        ID   : 18
+        Scope: global
+        Value: 0
+    
+Variable (int32) serror
+    Attributes
+        ID   : 19
+        Scope: global
+        Value: 0
+    
+Variable (int32) disgth
+    Attributes
+        ID   : 20
+        Scope: global
+        Value: 0
+    
+Variable (int32) brightness
+    Attributes
+        ID   : 21
+        Scope: global
+        Value: 50
+    
+Variable (int32) brightdd
+    Attributes
+        ID   : 22
+        Scope: global
+        Value: 20
+    
+Variable (int32) swipedir
+    Attributes
+        ID   : 23
+        Scope: global
+        Value: 0
+    
+Variable (int32) loadedstate
+    Attributes
+        ID   : 24
+        Scope: global
+        Value: 0
+    
+Variable (int32) perror
+    Attributes
+        ID   : 25
+        Scope: global
+        Value: 0
+    

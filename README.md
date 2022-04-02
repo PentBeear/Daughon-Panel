@@ -1,3 +1,3 @@
 # nspanel-customfirm
-A custom firmware for my nspanel
-Documentation might be made purely for me as the project is public so people can play with the HMI, nothing more.
+A North American MQTT based firmware for the NSPanel Nextion Screen (Uses tasmota for a backend) 
+Documentation to be added

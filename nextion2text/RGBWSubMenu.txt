@@ -31,6 +31,67 @@ Page RGBWSubMenu
             // values that can be returned are numbered so 1 2 3 4
             // 1 could = 100 and 1 could be a name for the brightness slider
             // brightness can be set with {"1":"100"}
+            // Toggle Button Setup
+            if(varstor.smtrigid.val==0) // Toggle
+            {
+                if(SixBtn.bt0state.val==0) // Switch to on
+                {
+                    toggle.pic=25
+                }else
+                {
+                    toggle.pic=226
+                }
+            }
+            if(varstor.smtrigid.val==1) // Toggle
+            {
+                if(SixBtn.bt1state.val==0) // Switch to on
+                {
+                    toggle.pic=25
+                }else
+                {
+                    toggle.pic=26
+                }
+            }
+            if(varstor.smtrigid.val==2) // Toggle
+            {
+                if(SixBtn.bt2state.val==0) // Switch to on
+                {
+                    toggle.pic=25
+                }else
+                {
+                    toggle.pic=26
+                }
+            }
+            if(varstor.smtrigid.val==3) // Toggle
+            {
+                if(SixBtn.bt3state.val==0) // Switch to on
+                {
+                    toggle.pic=25
+                }else
+                {
+                    toggle.pic=26
+                }
+            }
+            if(varstor.smtrigid.val==4) // Toggle
+            {
+                if(SixBtn.bt4state.val==0) // Switch to on
+                {
+                    toggle.pic=25
+                }else
+                {
+                    toggle.pic=26
+                }
+            }
+            if(varstor.smtrigid.val==5) // Toggle
+            {
+                if(SixBtn.bt5state.val==0) // Switch to on
+                {
+                    toggle.pic=25
+                }else
+                {
+                    toggle.pic=26
+                }
+            }
         
 Variable (int32) w
     Attributes
@@ -275,114 +336,108 @@ Picture colorwheel
             }
         
         Touch Release Event
-            // https://de.wikipedia.org/wiki/HSV-Farbraum#Umrechnung_HSV_in_RGB
-            // The values range from 0..255 instead of 0..1
-            // h ranges from 0..(6*256)
-            if(s.val>=256)
-            {
-                s.val=255
-            }else if(s.val<0)
-            {
-                s.val=0
-            }
-            if(v.val>=256)
-            {
-                v.val=255
-            }else if(v.val<0)
-            {
-                v.val=0
-            }
-            v.val=vslider.val
-            f.val=h.val&0xff
-            p.val=256-s.val
-            p.val*=v.val
-            p.val=p.val>>8// / 256
-            q.val=s.val*f.val// 0-256*256 = 0-65536
-            q.val=65536-q.val
-            q.val*=v.val
-            q.val=q.val>>16
-            t.val=256-f.val
-            t.val*=s.val
-            t.val=65536-t.val
-            t.val*=v.val
-            t.val=t.val>>16
+            // Adjust field.val "orientation" and offset to match the h value of the colors in the wheel
+            h.val=23-field.val// 0 <= field.val <= 23
+            // h is expected to be 0-6*256 (see hsv2rgb)
+            h.val*=6*256
+            h.val/=24// Number of fields
             //
-            f.val=h.val>>8
-            if(f.val==1)
+            // s is expected to be 0-256 (see hsv2rgb)
+            s.val=ring.val*256
+            s.val/=8// Number of rings
+            // no "value" selectable; fix it to the maximum (matching the colors in the wheels shown.
+            v.val=255
+            click hsv2rgb,0
+            click rgb888to565,0
+            name.pco=rgb565.val
+        
+Picture toggle
+    Attributes
+        ID                                  : 28
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+    
+    Events
+        Touch Press Event
+            if(varstor.smtrigid.val==0) // Toggle
             {
-                r.val=q.val
-                g.val=v.val
-                b.val=p.val
-            }else if(f.val==2)
-            {
-                r.val=p.val
-                g.val=v.val
-                b.val=t.val
-            }else if(f.val==3)
-            {
-                r.val=p.val
-                g.val=q.val
-                b.val=v.val
-            }else if(f.val==4)
-            {
-                r.val=t.val
-                g.val=p.val
-                b.val=v.val
-            }else if(f.val==5)
-            {
-                r.val=v.val
-                g.val=p.val
-                b.val=q.val
-            }else
-            {
-                r.val=v.val
-                g.val=t.val
-                b.val=p.val
+                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
+                if(SixBtn.bt0state.val==0) // Switch to on
+                {
+                    SixBtn.bt0state.val=1
+                    toggle.pic=26
+                }else
+                {
+                    SixBtn.bt0state.val=0
+                    toggle.pic=25
+                }
             }
-            // whenever this is called send the updated data and update the button state
-            // {"page":"0","btn":"0","update":"color","r":"31","g":"0","b":"0"}
-            // Disables serial before sending a message
-            sreadbuffer.en=0
-            // {"update":"btn","btn":"5","action":"color","r":"50","g":"50","b":"50"}
-            prints "{\"update\":\"btn\",\"btn\":\"",0
-            covx varstor.smtrigid.val,varstor.numtotxt.txt,0,0
-            prints varstor.numtotxt.txt,0
-            prints "\",\"action\":\"color\",\"r\":\"",0
-            covx r.val,varstor.numtotxt.txt,0,0
-            prints varstor.numtotxt.txt,0
-            prints "\",\"g\":\"",0
-            covx g.val,varstor.numtotxt.txt,0,0
-            prints varstor.numtotxt.txt,0
-            prints "\",\"b\":\"",0
-            covx b.val,varstor.numtotxt.txt,0,0
-            prints varstor.numtotxt.txt,0
-            prints "\"}",0
-            // Enables serial after sending a message
-            sreadbuffer.en=1
-            // {"page":"1","btn":"0","update":"color","r":"31","g":"0","b":"0"}
-            if(varstor.smtrigid.val==0)
+            if(varstor.smtrigid.val==1) // Toggle
             {
-                SixBtn.bt0state.val=1
+                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
+                if(SixBtn.bt1state.val==0) // Switch to on
+                {
+                    SixBtn.bt1state.val=1
+                    toggle.pic=26
+                }else
+                {
+                    SixBtn.bt1state.val=0
+                    toggle.pic=25
+                }
             }
-            if(varstor.smtrigid.val==1)
+            if(varstor.smtrigid.val==2) // Toggle
             {
-                SixBtn.bt1state.val=1
+                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
+                if(SixBtn.bt2state.val==0) // Switch to on
+                {
+                    SixBtn.bt2state.val=1
+                    toggle.pic=26
+                }else
+                {
+                    SixBtn.bt2state.val=0
+                    toggle.pic=25
+                }
             }
-            if(varstor.smtrigid.val==2)
+            if(varstor.smtrigid.val==3) // Toggle
             {
-                SixBtn.bt2state.val=1
+                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
+                if(SixBtn.bt3state.val==0) // Switch to on
+                {
+                    SixBtn.bt3state.val=1
+                    toggle.pic=26
+                }else
+                {
+                    SixBtn.bt3state.val=0
+                    toggle.pic=25
+                }
             }
-            if(varstor.smtrigid.val==3)
+            if(varstor.smtrigid.val==4) // Toggle
             {
-                SixBtn.bt3state.val=1
+                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
+                if(SixBtn.bt4state.val==0) // Switch to on
+                {
+                    SixBtn.bt4state.val=1
+                    toggle.pic=26
+                }else
+                {
+                    SixBtn.bt4state.val=0
+                    toggle.pic=25
+                }
             }
-            if(varstor.smtrigid.val==4)
+            if(varstor.smtrigid.val==5) // Toggle
             {
-                SixBtn.bt4state.val=1
-            }
-            if(varstor.smtrigid.val==5)
-            {
-                SixBtn.bt5state.val=1
+                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
+                if(SixBtn.bt5state.val==0) // Switch to on
+                {
+                    SixBtn.bt5state.val=1
+                    toggle.pic=26
+                }else
+                {
+                    SixBtn.bt5state.val=0
+                    toggle.pic=25
+                }
             }
         
 Slider wslider
@@ -407,13 +462,13 @@ Slider wslider
             sreadbuffer.en=0
             w.val=wslider.val
             // {"update":"btn","btn":"5","action":"white","w":"50"}
-            prints "{\"update\":\"btn\",\"btn\":\"",0
+            prints "{\"update\":\"btn\",\"data\":{\"btn\":\"",0
             covx varstor.smtrigid.val,varstor.numtotxt.txt,0,0
             prints varstor.numtotxt.txt,0
             prints "\",\"action\":\"white\",\"w\":\"",0
             covx w.val,varstor.numtotxt.txt,0,0
             prints varstor.numtotxt.txt,0
-            prints "\"}",0
+            prints "\"}}",0
             // Enables serial after sending a message
             sreadbuffer.en=1
             // {"page":"1","btn":"0","update":"white","w":"82"}
@@ -441,6 +496,7 @@ Slider wslider
             {
                 SixBtn.bt5state.val=1
             }
+            toggle.pic=26
         
 Slider vslider
     Attributes
@@ -564,8 +620,8 @@ Hotspot hsv2rgb
             // {"page":"0","btn":"0","update":"color","r":"31","g":"0","b":"0"}
             // Disables serial before sending a message
             sreadbuffer.en=0
-            // {"update":"btn","btn":"5","action":"color","r":"50","g":"50","b":"50"}
-            prints "{\"update\":\"btn\",\"btn\":\"",0
+            // {"update":"btn","data":{"btn":"5","action":"color","r":"50","g":"50","b":"50"}}
+            prints "{\"update\":\"btn\",\"data\":{\"btn\":\"",0
             covx varstor.smtrigid.val,varstor.numtotxt.txt,0,0
             prints varstor.numtotxt.txt,0
             prints "\",\"action\":\"color\",\"r\":\"",0
@@ -577,7 +633,7 @@ Hotspot hsv2rgb
             prints "\",\"b\":\"",0
             covx b.val,varstor.numtotxt.txt,0,0
             prints varstor.numtotxt.txt,0
-            prints "\"}",0
+            prints "\"}}",0
             // Enables serial after sending a message
             sreadbuffer.en=1
             // {"page":"1","btn":"0","update":"color","r":"31","g":"0","b":"0"}
@@ -605,6 +661,7 @@ Hotspot hsv2rgb
             {
                 SixBtn.bt5state.val=1
             }
+            toggle.pic=26
         
 Hotspot rgb888to565
     Attributes
@@ -673,52 +730,7 @@ Timer sreadbuffer
                     // prints buff.txt,0 // prints what you sent
                     // clear buffer
                     code_c
-                    // Weather Parser
-                    // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
-                    // {"weather":"22","233"}
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"weather\":",1 // {"weather":"22","233"}
-                    spstr varstor.com.txt,varstor.com.txt,"\",",0
-                    strlen varstor.com.txt,varstor.txttonum.val
-                    if(varstor.txttonum.val>2) // If weather update did happen we can also check if its raining
-                    {
-                        substr varstor.com.txt,varstor.tempstor.txt,1,5
-                        spstr varstor.buff.txt,varstor.com.txt,"\",",1
-                        spstr varstor.com.txt,varstor.com.txt,"\"}",0
-                        substr varstor.com.txt,varstor.com.txt,1,3
-                        covx varstor.com.txt,varstor.weatherstor.val,0,0 // extracts number and sets the weather icon
-                        // prints "{\"status\":\"weather_updated\"}",0
-                    }
-                    varstor.com.txt=""// Reset Value
-                    // End Weather Parser
                     //
-                    // Date Parser
-                    // Valid formats: Them being two seperate json parses lets the user use three different formats
-                    // {"date":"02|28|2022","time":"50:20"}
-                    // {"time":"50:20"}
-                    // {"date":"02|28|2020"}
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
-                    spstr varstor.com.txt,varstor.com.txt,"\",\"time\"",0 // ","time"
-                    strlen varstor.com.txt,varstor.txttonum.val
-                    if(varstor.txttonum.val>2)
-                    {
-                        varstor.datestor.txt=varstor.com.txt
-                    }
-                    varstor.com.txt="" // Reset value
-                    spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
-                    strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
-                    if(varstor.txttonum.val>2)
-                    {
-                        varstor.timestor.txt=varstor.com.txt
-                        //prints "{\"status\":\"date_updated\"}",0
-                    }
-                    // End Date Parser
-                    //
-                    // Notification Parser {"notification":""}
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
-                    varstor.notification.txt=varstor.com.txt
-                    // End Notification Parser
                     // Action  Parser
                     spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
                     spstr varstor.com.txt,varstor.com.txt,"\"",0 // "}
@@ -743,12 +755,12 @@ Timer sreadbuffer
                             dim=0
                             page Sleep
                         }
-                        // {"action":"refresh","r":"1","g":"1","b":"1","brightness":"50","w":"50"}
+                        // {"action":"refresh","data":{"r":"1","g":"1","b":"1","brightness":"50","w":"50"}}
                         // Brightness needs to correlate to the actual color sent it doesn't do it automatically so if you send r=255 g=255 b=255 brightness needs to be 255 to match that as rgb takes precedence
                         // Backends should be able to handle this if you just have an hsv color and send the rgb conversion and send the v component of the color along with that
                         if(varstor.com.txt=="refresh")
                         {
-                            spstr varstor.buff.txt,varstor.com.txt,"\"r\":\"",1
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"r\":\"",1
                             spstr varstor.com.txt,varstor.com.txt,"\",\"g\":\"",0
                             covx varstor.com.txt,varstor.txttonum.val,0,0
                             r.val=varstor.txttonum.val
@@ -765,12 +777,42 @@ Timer sreadbuffer
                             covx varstor.com.txt,varstor.txttonum.val,0,0
                             vslider.val=varstor.txttonum.val
                             spstr varstor.buff.txt,varstor.com.txt,"\"w\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\"}",0
+                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0
                             covx varstor.com.txt,varstor.txttonum.val,0,0
                             wslider.val=varstor.txttonum.val
                             prints varstor.com.txt,0
                             click rgb888to565,0
                             name.pco=rgb565.val
+                        }
+                        if(varstor.com.txt=="date")
+                        {
+                            // {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
+                            spstr varstor.com.txt,varstor.datestor.txt,"\",\"time\"",0 // ","time"
+                            spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
+                            spstr varstor.com.txt,varstor.timestor.txt,"\"}}",0 // "}}
+                        }
+                        if(varstor.com.txt=="weather")
+                        {
+                            // Weather Parser
+                            // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
+                            // {"action":"weather","data":{"icon":"22","temp":"233"}}
+                            // Icon
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"icon\":\"",1 // {"icon":"
+                            spstr varstor.com.txt,varstor.com.txt,"\",\"temp\":\"",0
+                            covx varstor.com.txt,varstor.weatherstor.val,0,0
+                            // Temperature
+                            spstr varstor.buff.txt,varstor.com.txt,"\",\"temp\":\"",1
+                            spstr varstor.com.txt,varstor.tempstor.txt,"\"}}",0
+                            // Directly stores the result of spstr into tempstor
+                        }
+                        if(varstor.com.txt=="notification")
+                        {
+                            // Notification Parser {"notification":""}
+                            //{"action":"notification","data":{"notification":"02|28|2022"}}
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
+                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0 // "}
+                            varstor.notification.txt=varstor.com.txt
                         }
                     }
                     // End Action Parser

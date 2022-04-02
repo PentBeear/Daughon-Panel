@@ -255,84 +255,7 @@ Timer sreadbuffer
                     // prints buff.txt,0 // prints what you sent
                     // clear buffer
                     code_c
-                    // Weather Parser
-                    // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
-                    // {"weather":"22","233"}
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"weather\":",1 // {"weather":"22","233"}
-                    spstr varstor.com.txt,varstor.com.txt,"\",",0
-                    strlen varstor.com.txt,varstor.txttonum.val
-                    if(varstor.txttonum.val>2) // If weather update did happen we can also check if its raining
-                    {
-                        substr varstor.com.txt,varstor.tempstor.txt,1,5
-                        spstr varstor.buff.txt,varstor.com.txt,"\",",1
-                        spstr varstor.com.txt,varstor.com.txt,"\"}",0
-                        substr varstor.com.txt,varstor.com.txt,1,3
-                        covx varstor.com.txt,varstor.weatherstor.val,0,0 // extracts number and sets the weather icon
-                        if(varstor.weatherstor.val==0) // Sunny
-                        {
-                            weather.pic=7
-                        }
-                        if(varstor.weatherstor.val==1) // partly cloudy
-                        {
-                            weather.pic=5
-                        }
-                        if(varstor.weatherstor.val==2) // cloudy
-                        {
-                            weather.pic=2
-                        }
-                        if(varstor.weatherstor.val==3) // really cloudy
-                        {
-                            weather.pic=8
-                        }
-                        if(varstor.weatherstor.val==4) // light rain
-                        {
-                            weather.pic=4
-                        }
-                        if(varstor.weatherstor.val==5) // heavy rain
-                        {
-                            weather.pic=3
-                        }
-                        if(varstor.weatherstor.val==6) // snow
-                        {
-                            weather.pic=6
-                        }
-                        if(varstor.weatherstor.val==7) // unknown
-                        {
-                            weather.pic=9
-                        }
-                        // prints "{\"status\":\"weather_updated\"}",0
-                    }
-                    varstor.com.txt=""// Reset Value
-                    // End Weather Parser
                     //
-                    // Date Parser
-                    // Valid formats: Them being two seperate json parses lets the user use three different formats
-                    // {"date":"02|28|2022","time":"50:20"}
-                    // {"time":"50:20"}
-                    // {"date":"02|28|2020"}
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
-                    spstr varstor.com.txt,varstor.com.txt,"\",\"time\"",0 // ","time"
-                    strlen varstor.com.txt,varstor.txttonum.val
-                    if(varstor.txttonum.val>2)
-                    {
-                        varstor.datestor.txt=varstor.com.txt
-                    }
-                    varstor.com.txt="" // Reset value
-                    spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
-                    strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
-                    if(varstor.txttonum.val>2)
-                    {
-                        varstor.timestor.txt=varstor.com.txt
-                        //prints "{\"status\":\"date_updated\"}",0
-                    }
-                    // End Date Parser
-                    //
-                    // Notification Parser {"notification":""}
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
-                    varstor.notification.txt=varstor.com.txt
-                    // End Notification Parser
                     // Action  Parser
                     spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
                     spstr varstor.com.txt,varstor.com.txt,"\"",0 // "}
@@ -357,14 +280,79 @@ Timer sreadbuffer
                             dim=0
                             page Sleep
                         }
+                        if(varstor.com.txt=="date")
+                        {
+                            // {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
+                            spstr varstor.com.txt,varstor.datestor.txt,"\",\"time\"",0 // ","time"
+                            date.txt=varstor.datestor.txt
+                            spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
+                            spstr varstor.com.txt,varstor.timestor.txt,"\"}}",0 // "}
+                            time.txt=varstor.timestor.txt
+                        }
+                        if(varstor.com.txt=="weather")
+                        {
+                            // Weather Parser
+                            // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
+                            // {"action":"weather","data":{"icon":"22","temp":"233"}}
+                            // Icon
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"icon\":\"",1 // {"icon":"
+                            spstr varstor.com.txt,varstor.com.txt,"\",\"temp\":\"",0
+                            covx varstor.com.txt,varstor.weatherstor.val,0,0
+                            // Temperature
+                            spstr varstor.buff.txt,varstor.com.txt,"\",\"temp\":\"",1
+                            spstr varstor.com.txt,varstor.tempstor.txt,"\"}}",0
+                            temp.txt=varstor.tempstor.txt
+                            // Directly stores the result of spstr into tempstor
+                            if(varstor.weatherstor.val==0) // Sunny
+                            {
+                                weather.pic=7
+                            }
+                            if(varstor.weatherstor.val==1) // partly cloudy
+                            {
+                                weather.pic=5
+                            }
+                            if(varstor.weatherstor.val==2) // cloudy
+                            {
+                                weather.pic=2
+                            }
+                            if(varstor.weatherstor.val==3) // really cloudy
+                            {
+                                weather.pic=8
+                            }
+                            if(varstor.weatherstor.val==4) // light rain
+                            {
+                                weather.pic=4
+                            }
+                            if(varstor.weatherstor.val==5) // heavy rain
+                            {
+                                weather.pic=3
+                            }
+                            if(varstor.weatherstor.val==6) // snow
+                            {
+                                weather.pic=6
+                            }
+                            if(varstor.weatherstor.val==7) // unknown
+                            {
+                                weather.pic=9
+                            }
+                        }
+                        if(varstor.com.txt=="notification")
+                        {
+                            // Notification Parser {"notification":""}
+                            //{"action":"notification","data":{"notification":"02|28|2022"}}
+                            spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
+                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0 // "}
+                            varstor.notification.txt=varstor.com.txt
+                        }
                     }
                 }
-                // After 10 tries (5 seconds) of failing to receive a full messsage the buffer resets
-                if(varstor.serror.val>=10)
-                {
-                    code_c
-                    varstor.serror.val=0
-                }
+            }
+            // After 10 tries (5 seconds) of failing to receive a full messsage the buffer resets
+            if(varstor.serror.val>=10)
+            {
+                code_c
+                varstor.serror.val=0
             }
         
 Timer notifier
@@ -399,6 +387,8 @@ Timer pagereader
             ucopy varstor.buff.txt,usize-4,usize-3,0
             substr varstor.buff.txt,varstor.buff.txt,0,1
             // {"action":"page","type":"0","name":"Bedroom","info":["btn=0,type=0,name=Bob,icon=0,state=1","btn=1,type=1,name=e,icon=1,state=1","btn=2,type=2,name=Light,icon=0,state=1","btn=3,type=3,name=Zoomer,icon=0,state=0","btn=4,type=4,name=Light,icon=2","btn=5,type=5,name=test,icon=0,state=0"]}
+            // {"action":"page","data":{"type":"0","name":"Bedroom","info":["btn=0,type=6,name=Bob,icon=0,state=0","btn=1,type=1,name=e,icon=1,state=1","btn=2,type=2,name=Light,icon=0,state=1","btn=3,type=3,name=Zoomer,icon=0,state=0","btn=4,type=4,name=Light,icon=2","btn=5,type=5,name=test,icon=0,state=0"]}}
+            // The second way of sending information is a bit harder to parse and has the buffer start parsing data a character before the end, but adds more consistency so i went with that
             if(varstor.buff.txt=="}")  // this takes into account the  "(1 " 3 characters with the space and makes sure the data stream has ended
             {
                 ucopy varstor.buff.txt,0,usize-3,0
@@ -408,11 +398,11 @@ Timer pagereader
                 // Type
                 varstor.com.txt="0" // Reset value
                 spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
-                spstr varstor.com.txt,varstor.com.txt,"\",\"type\":\"",0 // ","type":
+                spstr varstor.com.txt,varstor.com.txt,"\",\"data\":",0 // ","data":
                 if(varstor.com.txt=="page")
                 {
                     // Since we know the first value was successfully gotten we can do the rest safely
-                    spstr varstor.buff.txt,varstor.com.txt,"\"type\":\"",1 // {"type":"
+                    spstr varstor.buff.txt,varstor.com.txt,"{\"type\":\"",1 // {"type":"
                     spstr varstor.com.txt,varstor.com.txt,"\",\"name\":",0 // ","name":
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pagetype.txt=varstor.com.txt
@@ -425,7 +415,7 @@ Timer pagereader
                     // Page Info
                     varstor.com.txt="0" // Reset value
                     spstr varstor.buff.txt,varstor.com.txt,"\"info\":[",1 // "buttons":[
-                    spstr varstor.com.txt,varstor.com.txt,"]}",0 // ]}
+                    spstr varstor.com.txt,varstor.com.txt,"]}}",0 // ]}
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pageinfo.txt=varstor.com.txt
                     varstor.pagereceived.val=1 // Send that a page has been receive

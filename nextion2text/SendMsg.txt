@@ -13,6 +13,7 @@ Page SendMsg
     
     Events
         Preinitialize Event
+            prints "{\"indicator\":\"messager\"}",0
             // This page can't have serial read buffer because it also uses the buffer variable, which is a no no
             vis b0,0
             // First stage get sender

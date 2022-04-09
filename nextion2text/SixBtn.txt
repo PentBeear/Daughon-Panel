@@ -13,6 +13,12 @@ Page SixBtn
     
     Events
         Preinitialize Event
+            // Nesting back enabler
+            if(varstor.isnested.val==0)
+            {
+                vis nestback,0
+                vis home,0
+            }
             // Enables the timer to reset back to home and resets the light submenu id
             dim=varstor.brightness.val
             varstor.serror.val=0
@@ -392,73 +398,73 @@ Page SixBtn
         
 Variable (int32) bt0type
     Attributes
-        ID   : 20
+        ID   : 19
         Scope: local
         Value: 0
     
 Variable (int32) bt1type
     Attributes
-        ID   : 21
+        ID   : 20
         Scope: local
         Value: 0
     
 Variable (int32) bt2type
     Attributes
-        ID   : 22
+        ID   : 21
         Scope: local
         Value: 0
     
 Variable (int32) bt3type
     Attributes
-        ID   : 23
+        ID   : 22
         Scope: local
         Value: 0
     
 Variable (int32) bt4type
     Attributes
-        ID   : 24
+        ID   : 23
         Scope: local
         Value: 0
     
 Variable (int32) bt5type
     Attributes
-        ID   : 25
+        ID   : 24
         Scope: local
         Value: 0
     
 Variable (int32) bt0state
     Attributes
-        ID   : 28
+        ID   : 27
         Scope: global
         Value: 0
     
 Variable (int32) bt1state
     Attributes
-        ID   : 29
+        ID   : 28
         Scope: global
         Value: 0
     
 Variable (int32) bt2state
     Attributes
-        ID   : 30
+        ID   : 29
         Scope: global
         Value: 0
     
 Variable (int32) bt3state
     Attributes
-        ID   : 31
+        ID   : 30
         Scope: global
         Value: 0
     
 Variable (int32) bt4state
     Attributes
-        ID   : 32
+        ID   : 31
         Scope: global
         Value: 0
     
 Variable (int32) bt5state
     Attributes
-        ID   : 33
+        ID   : 32
         Scope: global
         Value: 0
     
@@ -495,20 +501,9 @@ Text bt2name
         Text                                : N
         Max. Text Size                      : 10
     
-Text name
-    Attributes
-        ID                                  : 8
-        Scope                               : local
-        Dragging                            : 0
-        Disable release event after dragging: 0
-        Send Component ID                   : disabled
-        Associated Keyboard                 : none
-        Text                                : null
-        Max. Text Size                      : 10
-    
 Text bt3name
     Attributes
-        ID                                  : 10
+        ID                                  : 9
         Scope                               : local
         Dragging                            : 0
         Disable release event after dragging: 0
@@ -519,7 +514,7 @@ Text bt3name
     
 Text bt4name
     Attributes
-        ID                                  : 13
+        ID                                  : 12
         Scope                               : local
         Dragging                            : 0
         Disable release event after dragging: 0
@@ -530,13 +525,24 @@ Text bt4name
     
 Text bt5name
     Attributes
-        ID                                  : 36
+        ID                                  : 35
         Scope                               : local
         Dragging                            : 0
         Disable release event after dragging: 0
         Send Component ID                   : disabled
         Associated Keyboard                 : none
         Text                                : N
+        Max. Text Size                      : 10
+    
+Text name
+    Attributes
+        ID                                  : 38
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        Associated Keyboard                 : none
+        Text                                : null
         Max. Text Size                      : 10
     
 Picture background
@@ -557,259 +563,332 @@ Picture bt0
     
     Events
         Touch Press Event
-            // Sets the trigger name and id for a potentional submenu
-            varstor.smtrigid.val=0
-            varstor.smtrigname.txt=bt0name.txt
-            if(bt0type.val==0) // Light (RGBW) if held goto submenu
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=1
-            }
-            if(bt0type.val==1) // Light (RGBKW)
-            {
-                rgbwhold.en=1
-            }
-            if(bt0type.val==2) // Light (KW)
-            {
-                rgbkwhold.en=1
-            }
-            if(bt0type.val==3) // Dimmer
-            {
-                kwhold.en=1
-            }
-            if(bt0type.val==4) // Dimmer
-            {
-                dimhold.en=1
-            }
-            if(bt0type.val==5) // Toggle
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
-                if(bt0state.val==0) // Switch to on
+                // Sets the trigger name and id for a potentional submenu
+                varstor.smtrigid.val=0
+                varstor.smtrigname.txt=bt0name.txt
+                if(bt0type.val==0) // Light (RGBW) if held goto submenu
                 {
-                    if(bt0.pic==15) // Fan
-                    {
-                        bt0.pic=18
-                    }
-                    if(bt0.pic==16) // White Light
-                    {
-                        bt0.pic=19
-                    }
-                    if(bt0.pic==17) // RGBW Light
-                    {
-                        bt0.pic=20
-                    }
-                    bt0state.val=1
-                }else
-                {
-                    if(bt0.pic==18) // Fan
-                    {
-                        bt0.pic=15
-                    }
-                    if(bt0.pic==19) // White Light
-                    {
-                        bt0.pic=16
-                    }
-                    if(bt0.pic==20) // RGBW Light
-                    {
-                        bt0.pic=17
-                    }
-                    bt0state.val=0
+                    rgbhold.en=1
                 }
-            }
-            if(bt0type.val==6) // static
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"run\"}}",0
+                if(bt0type.val==1) // Light (RGBKW)
+                {
+                    rgbwhold.en=1
+                }
+                if(bt0type.val==2) // Light (KW)
+                {
+                    rgbkwhold.en=1
+                }
+                if(bt0type.val==3) // Dimmer
+                {
+                    kwhold.en=1
+                }
+                if(bt0type.val==4) // Dimmer
+                {
+                    dimhold.en=1
+                }
+                if(bt0type.val==5) // Toggle
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    if(bt0state.val==0) // Switch to on
+                    {
+                        if(bt0.pic==15) // Fan
+                        {
+                            bt0.pic=18
+                        }
+                        if(bt0.pic==16) // White Light
+                        {
+                            bt0.pic=19
+                        }
+                        if(bt0.pic==17) // RGBW Light
+                        {
+                            bt0.pic=20
+                        }
+                        bt0state.val=1
+                    }else
+                    {
+                        if(bt0.pic==18) // Fan
+                        {
+                            bt0.pic=15
+                        }
+                        if(bt0.pic==19) // White Light
+                        {
+                            bt0.pic=16
+                        }
+                        if(bt0.pic==20) // RGBW Light
+                        {
+                            bt0.pic=17
+                        }
+                        bt0state.val=0
+                    }
+                }
+                if(bt0type.val==6) // static
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"run\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                if(bt0type.val==7) // submenu and checks if the pagereader is enabled if it is don't do anything
+                {
+                    if(varstor.isnested.val==0)
+                    {
+                        // Sets that we are trying to enter a nest
+                        varstor.isnested.val=3
+                    }else
+                    {
+                        // Sets that we are trying to continue down
+                        varstor.isnested.val=1
+                    }
+                    varstor.nestdir.val=1 // 1 is increasing depth 0 is subtracting depth
+                    varstor.nestdepth.val++
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Enables the page reading timer
+                    varstor.perror.val=0
+                    // Resets the page timeout before being used
+                    pagereader.en=1
+                }
             }
         
         Touch Release Event
-            if(bt0type.val==0)// Light (RGBW) Released (just toggle)
+            if(pagereader.en==0)
             {
-                rgbhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt0state.val==0) // Switch to on
+                if(bt0type.val==0)// Light (RGBW) Released (just toggle)
                 {
-                    if(bt0.pic==15) // Fan
+                    rgbhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt0state.val==0) // Switch to on
                     {
-                        bt0.pic=18
-                    }
-                    if(bt0.pic==16) // White Light
+                        if(bt0.pic==15) // Fan
+                        {
+                            bt0.pic=18
+                        }
+                        if(bt0.pic==16) // White Light
+                        {
+                            bt0.pic=19
+                        }
+                        if(bt0.pic==17) // RGBW Light
+                        {
+                            bt0.pic=20
+                        }
+                        bt0state.val=1
+                    }else
                     {
-                        bt0.pic=19
+                        if(bt0.pic==18) // Fan
+                        {
+                            bt0.pic=15
+                        }
+                        if(bt0.pic==19) // White Light
+                        {
+                            bt0.pic=16
+                        }
+                        if(bt0.pic==20) // RGBW Light
+                        {
+                            bt0.pic=17
+                        }
+                        bt0state.val=0
                     }
-                    if(bt0.pic==17) // RGBW Light
-                    {
-                        bt0.pic=20
-                    }
-                    bt0state.val=1
-                }else
-                {
-                    if(bt0.pic==18) // Fan
-                    {
-                        bt0.pic=15
-                    }
-                    if(bt0.pic==19) // White Light
-                    {
-                        bt0.pic=16
-                    }
-                    if(bt0.pic==20) // RGBW Light
-                    {
-                        bt0.pic=17
-                    }
-                    bt0state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt0type.val==1)// Light (RGBKW) Released (just toggle)
-            {
-                rgbwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt0state.val==0) // Switch to on
+                if(bt0type.val==1)// Light (RGBKW) Released (just toggle)
                 {
-                    if(bt0.pic==15) // Fan
+                    rgbwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt0state.val==0) // Switch to on
                     {
-                        bt0.pic=18
-                    }
-                    if(bt0.pic==16) // White Light
+                        if(bt0.pic==15) // Fan
+                        {
+                            bt0.pic=18
+                        }
+                        if(bt0.pic==16) // White Light
+                        {
+                            bt0.pic=19
+                        }
+                        if(bt0.pic==17) // RGBW Light
+                        {
+                            bt0.pic=20
+                        }
+                        bt0state.val=1
+                    }else
                     {
-                        bt0.pic=19
+                        if(bt0.pic==18) // Fan
+                        {
+                            bt0.pic=15
+                        }
+                        if(bt0.pic==19) // White Light
+                        {
+                            bt0.pic=16
+                        }
+                        if(bt0.pic==20) // RGBW Light
+                        {
+                            bt0.pic=17
+                        }
+                        bt0state.val=0
                     }
-                    if(bt0.pic==17) // RGBW Light
-                    {
-                        bt0.pic=20
-                    }
-                    bt0state.val=1
-                }else
-                {
-                    if(bt0.pic==18) // Fan
-                    {
-                        bt0.pic=15
-                    }
-                    if(bt0.pic==19) // White Light
-                    {
-                        bt0.pic=16
-                    }
-                    if(bt0.pic==20) // RGBW Light
-                    {
-                        bt0.pic=17
-                    }
-                    bt0state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt0type.val==2)// Light (KW) Released (just toggle)
-            {
-                rgbkwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt0state.val==0) // Switch to on
+                if(bt0type.val==2)// Light (KW) Released (just toggle)
                 {
-                    if(bt0.pic==15) // Fan
+                    rgbkwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt0state.val==0) // Switch to on
                     {
-                        bt0.pic=18
-                    }
-                    if(bt0.pic==16) // White Light
+                        if(bt0.pic==15) // Fan
+                        {
+                            bt0.pic=18
+                        }
+                        if(bt0.pic==16) // White Light
+                        {
+                            bt0.pic=19
+                        }
+                        if(bt0.pic==17) // RGBW Light
+                        {
+                            bt0.pic=20
+                        }
+                        bt0state.val=1
+                    }else
                     {
-                        bt0.pic=19
+                        if(bt0.pic==18) // Fan
+                        {
+                            bt0.pic=15
+                        }
+                        if(bt0.pic==19) // White Light
+                        {
+                            bt0.pic=16
+                        }
+                        if(bt0.pic==20) // RGBW Light
+                        {
+                            bt0.pic=17
+                        }
+                        bt0state.val=0
                     }
-                    if(bt0.pic==17) // RGBW Light
-                    {
-                        bt0.pic=20
-                    }
-                    bt0state.val=1
-                }else
-                {
-                    if(bt0.pic==18) // Fan
-                    {
-                        bt0.pic=15
-                    }
-                    if(bt0.pic==19) // White Light
-                    {
-                        bt0.pic=16
-                    }
-                    if(bt0.pic==20) // RGBW Light
-                    {
-                        bt0.pic=17
-                    }
-                    bt0state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt0type.val==3) // Dimmer Released (just toggle)
-            {
-                kwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt0state.val==0) // Switch to on
+                if(bt0type.val==3) // Dimmer Released (just toggle)
                 {
-                    if(bt0.pic==15) // Fan
+                    kwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt0state.val==0) // Switch to on
                     {
-                        bt0.pic=18
-                    }
-                    if(bt0.pic==16) // White Light
+                        if(bt0.pic==15) // Fan
+                        {
+                            bt0.pic=18
+                        }
+                        if(bt0.pic==16) // White Light
+                        {
+                            bt0.pic=19
+                        }
+                        if(bt0.pic==17) // RGBW Light
+                        {
+                            bt0.pic=20
+                        }
+                        bt0state.val=1
+                    }else
                     {
-                        bt0.pic=19
+                        if(bt0.pic==18) // Fan
+                        {
+                            bt0.pic=15
+                        }
+                        if(bt0.pic==19) // White Light
+                        {
+                            bt0.pic=16
+                        }
+                        if(bt0.pic==20) // RGBW Light
+                        {
+                            bt0.pic=17
+                        }
+                        bt0state.val=0
                     }
-                    if(bt0.pic==17) // RGBW Light
-                    {
-                        bt0.pic=20
-                    }
-                    bt0state.val=1
-                }else
-                {
-                    if(bt0.pic==18) // Fan
-                    {
-                        bt0.pic=15
-                    }
-                    if(bt0.pic==19) // White Light
-                    {
-                        bt0.pic=16
-                    }
-                    if(bt0.pic==20) // RGBW Light
-                    {
-                        bt0.pic=17
-                    }
-                    bt0state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt0type.val==4) // Dimmer Released (just toggle)
-            {
-                dimhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt0state.val==0) // Switch to on
+                if(bt0type.val==4) // Dimmer Released (just toggle)
                 {
-                    if(bt0.pic==15) // Fan
+                    dimhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt0state.val==0) // Switch to on
                     {
-                        bt0.pic=18
-                    }
-                    if(bt0.pic==16) // White Light
+                        if(bt0.pic==15) // Fan
+                        {
+                            bt0.pic=18
+                        }
+                        if(bt0.pic==16) // White Light
+                        {
+                            bt0.pic=19
+                        }
+                        if(bt0.pic==17) // RGBW Light
+                        {
+                            bt0.pic=20
+                        }
+                        bt0state.val=1
+                    }else
                     {
-                        bt0.pic=19
+                        if(bt0.pic==18) // Fan
+                        {
+                            bt0.pic=15
+                        }
+                        if(bt0.pic==19) // White Light
+                        {
+                            bt0.pic=16
+                        }
+                        if(bt0.pic==20) // RGBW Light
+                        {
+                            bt0.pic=17
+                        }
+                        bt0state.val=0
                     }
-                    if(bt0.pic==17) // RGBW Light
-                    {
-                        bt0.pic=20
-                    }
-                    bt0state.val=1
-                }else
-                {
-                    if(bt0.pic==18) // Fan
-                    {
-                        bt0.pic=15
-                    }
-                    if(bt0.pic==19) // White Light
-                    {
-                        bt0.pic=16
-                    }
-                    if(bt0.pic==20) // RGBW Light
-                    {
-                        bt0.pic=17
-                    }
-                    bt0state.val=0
+                    // Off Switch
                 }
-                // Off Switch
             }
         
 Picture bt1
@@ -822,259 +901,332 @@ Picture bt1
     
     Events
         Touch Press Event
-            // Sets the trigger name and id for a potentional submenu
-            varstor.smtrigid.val=1
-            varstor.smtrigname.txt=bt1name.txt
-            if(bt1type.val==0) // Light (RGBW) if held goto submenu
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=1
-            }
-            if(bt1type.val==1) // Light (RGBKW)
-            {
-                rgbwhold.en=1
-            }
-            if(bt1type.val==2) // Light (KW)
-            {
-                rgbkwhold.en=1
-            }
-            if(bt1type.val==3) // Dimmer
-            {
-                kwhold.en=1
-            }
-            if(bt1type.val==4) // Dimmer
-            {
-                dimhold.en=1
-            }
-            if(bt1type.val==5) // Toggle
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
-                if(bt1state.val==0) // Switch to on
+                // Sets the trigger name and id for a potentional submenu
+                varstor.smtrigid.val=1
+                varstor.smtrigname.txt=bt1name.txt
+                if(bt1type.val==0) // Light (RGBW) if held goto submenu
                 {
-                    if(bt1.pic==15) // Fan
-                    {
-                        bt1.pic=18
-                    }
-                    if(bt1.pic==16) // White Light
-                    {
-                        bt1.pic=19
-                    }
-                    if(bt1.pic==17) // RGBW Light
-                    {
-                        bt1.pic=20
-                    }
-                    bt1state.val=1
-                }else
-                {
-                    if(bt1.pic==18) // Fan
-                    {
-                        bt1.pic=15
-                    }
-                    if(bt1.pic==19) // White Light
-                    {
-                        bt1.pic=16
-                    }
-                    if(bt1.pic==20) // RGBW Light
-                    {
-                        bt1.pic=17
-                    }
-                    bt1state.val=0
+                    rgbhold.en=1
                 }
-            }
-            if(bt1type.val==6) // static
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"run\"}}",0
+                if(bt1type.val==1) // Light (RGBKW)
+                {
+                    rgbwhold.en=1
+                }
+                if(bt1type.val==2) // Light (KW)
+                {
+                    rgbkwhold.en=1
+                }
+                if(bt1type.val==3) // Dimmer
+                {
+                    kwhold.en=1
+                }
+                if(bt1type.val==4) // Dimmer
+                {
+                    dimhold.en=1
+                }
+                if(bt1type.val==5) // Toggle
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    if(bt1state.val==0) // Switch to on
+                    {
+                        if(bt1.pic==15) // Fan
+                        {
+                            bt1.pic=18
+                        }
+                        if(bt1.pic==16) // White Light
+                        {
+                            bt1.pic=19
+                        }
+                        if(bt1.pic==17) // RGBW Light
+                        {
+                            bt1.pic=20
+                        }
+                        bt1state.val=1
+                    }else
+                    {
+                        if(bt1.pic==18) // Fan
+                        {
+                            bt1.pic=15
+                        }
+                        if(bt1.pic==19) // White Light
+                        {
+                            bt1.pic=16
+                        }
+                        if(bt1.pic==20) // RGBW Light
+                        {
+                            bt1.pic=17
+                        }
+                        bt1state.val=0
+                    }
+                }
+                if(bt1type.val==6) // static
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"run\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                if(bt1type.val==7&&pagereader.en==0) // submenu
+                {
+                    if(varstor.isnested.val==0)
+                    {
+                        // Sets that we are trying to enter a nest
+                        varstor.isnested.val=3
+                    }else
+                    {
+                        // Sets that we are trying to continue down
+                        varstor.isnested.val=1
+                    }
+                    varstor.nestdir.val=1 // 1 is increasing depth 0 is subtracting depth
+                    varstor.nestdepth.val++
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Enables the page reading timer
+                    varstor.perror.val=0
+                    // Resets the page timeout before being used
+                    pagereader.en=1
+                }
             }
         
         Touch Release Event
-            if(bt1type.val==0)// Light (RGBW) Released (just toggle)
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt1state.val==0) // Switch to on
+                if(bt1type.val==0)// Light (RGBW) Released (just toggle)
                 {
-                    if(bt1.pic==15) // Fan
+                    rgbhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt1state.val==0) // Switch to on
                     {
-                        bt1.pic=18
-                    }
-                    if(bt1.pic==16) // White Light
+                        if(bt1.pic==15) // Fan
+                        {
+                            bt1.pic=18
+                        }
+                        if(bt1.pic==16) // White Light
+                        {
+                            bt1.pic=19
+                        }
+                        if(bt1.pic==17) // RGBW Light
+                        {
+                            bt1.pic=20
+                        }
+                        bt1state.val=1
+                    }else
                     {
-                        bt1.pic=19
+                        if(bt1.pic==18) // Fan
+                        {
+                            bt1.pic=15
+                        }
+                        if(bt1.pic==19) // White Light
+                        {
+                            bt1.pic=16
+                        }
+                        if(bt1.pic==20) // RGBW Light
+                        {
+                            bt1.pic=17
+                        }
+                        bt1state.val=0
                     }
-                    if(bt1.pic==17) // RGBW Light
-                    {
-                        bt1.pic=20
-                    }
-                    bt1state.val=1
-                }else
-                {
-                    if(bt1.pic==18) // Fan
-                    {
-                        bt1.pic=15
-                    }
-                    if(bt1.pic==19) // White Light
-                    {
-                        bt1.pic=16
-                    }
-                    if(bt1.pic==20) // RGBW Light
-                    {
-                        bt1.pic=17
-                    }
-                    bt1state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt1type.val==1)// Light (RGBKW) Released (just toggle)
-            {
-                rgbwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt1state.val==0) // Switch to on
+                if(bt1type.val==1)// Light (RGBKW) Released (just toggle)
                 {
-                    if(bt1.pic==15) // Fan
+                    rgbwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt1state.val==0) // Switch to on
                     {
-                        bt1.pic=18
-                    }
-                    if(bt1.pic==16) // White Light
+                        if(bt1.pic==15) // Fan
+                        {
+                            bt1.pic=18
+                        }
+                        if(bt1.pic==16) // White Light
+                        {
+                            bt1.pic=19
+                        }
+                        if(bt1.pic==17) // RGBW Light
+                        {
+                            bt1.pic=20
+                        }
+                        bt1state.val=1
+                    }else
                     {
-                        bt1.pic=19
+                        if(bt1.pic==18) // Fan
+                        {
+                            bt1.pic=15
+                        }
+                        if(bt1.pic==19) // White Light
+                        {
+                            bt1.pic=16
+                        }
+                        if(bt1.pic==20) // RGBW Light
+                        {
+                            bt1.pic=17
+                        }
+                        bt1state.val=0
                     }
-                    if(bt1.pic==17) // RGBW Light
-                    {
-                        bt1.pic=20
-                    }
-                    bt1state.val=1
-                }else
-                {
-                    if(bt1.pic==18) // Fan
-                    {
-                        bt1.pic=15
-                    }
-                    if(bt1.pic==19) // White Light
-                    {
-                        bt1.pic=16
-                    }
-                    if(bt1.pic==20) // RGBW Light
-                    {
-                        bt1.pic=17
-                    }
-                    bt1state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt1type.val==2)// Light (KW) Released (just toggle)
-            {
-                rgbkwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt1state.val==0) // Switch to on
+                if(bt1type.val==2)// Light (KW) Released (just toggle)
                 {
-                    if(bt1.pic==15) // Fan
+                    rgbkwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt1state.val==0) // Switch to on
                     {
-                        bt1.pic=18
-                    }
-                    if(bt1.pic==16) // White Light
+                        if(bt1.pic==15) // Fan
+                        {
+                            bt1.pic=18
+                        }
+                        if(bt1.pic==16) // White Light
+                        {
+                            bt1.pic=19
+                        }
+                        if(bt1.pic==17) // RGBW Light
+                        {
+                            bt1.pic=20
+                        }
+                        bt1state.val=1
+                    }else
                     {
-                        bt1.pic=19
+                        if(bt1.pic==18) // Fan
+                        {
+                            bt1.pic=15
+                        }
+                        if(bt1.pic==19) // White Light
+                        {
+                            bt1.pic=16
+                        }
+                        if(bt1.pic==20) // RGBW Light
+                        {
+                            bt1.pic=17
+                        }
+                        bt1state.val=0
                     }
-                    if(bt1.pic==17) // RGBW Light
-                    {
-                        bt1.pic=20
-                    }
-                    bt1state.val=1
-                }else
-                {
-                    if(bt1.pic==18) // Fan
-                    {
-                        bt1.pic=15
-                    }
-                    if(bt1.pic==19) // White Light
-                    {
-                        bt1.pic=16
-                    }
-                    if(bt1.pic==20) // RGBW Light
-                    {
-                        bt1.pic=17
-                    }
-                    bt1state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt1type.val==3) // Dimmer Released (just toggle)
-            {
-                kwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt1state.val==0) // Switch to on
+                if(bt1type.val==3) // Dimmer Released (just toggle)
                 {
-                    if(bt1.pic==15) // Fan
+                    kwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt1state.val==0) // Switch to on
                     {
-                        bt1.pic=18
-                    }
-                    if(bt1.pic==16) // White Light
+                        if(bt1.pic==15) // Fan
+                        {
+                            bt1.pic=18
+                        }
+                        if(bt1.pic==16) // White Light
+                        {
+                            bt1.pic=19
+                        }
+                        if(bt1.pic==17) // RGBW Light
+                        {
+                            bt1.pic=20
+                        }
+                        bt1state.val=1
+                    }else
                     {
-                        bt1.pic=19
+                        if(bt1.pic==18) // Fan
+                        {
+                            bt1.pic=15
+                        }
+                        if(bt1.pic==19) // White Light
+                        {
+                            bt1.pic=16
+                        }
+                        if(bt1.pic==20) // RGBW Light
+                        {
+                            bt1.pic=17
+                        }
+                        bt1state.val=0
                     }
-                    if(bt1.pic==17) // RGBW Light
-                    {
-                        bt1.pic=20
-                    }
-                    bt1state.val=1
-                }else
-                {
-                    if(bt1.pic==18) // Fan
-                    {
-                        bt1.pic=15
-                    }
-                    if(bt1.pic==19) // White Light
-                    {
-                        bt1.pic=16
-                    }
-                    if(bt1.pic==20) // RGBW Light
-                    {
-                        bt1.pic=17
-                    }
-                    bt1state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt1type.val==4) // Dimmer Released (just toggle)
-            {
-                dimhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt1state.val==0) // Switch to on
+                if(bt1type.val==4) // Dimmer Released (just toggle)
                 {
-                    if(bt1.pic==15) // Fan
+                    dimhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"1\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt1state.val==0) // Switch to on
                     {
-                        bt1.pic=18
-                    }
-                    if(bt1.pic==16) // White Light
+                        if(bt1.pic==15) // Fan
+                        {
+                            bt1.pic=18
+                        }
+                        if(bt1.pic==16) // White Light
+                        {
+                            bt1.pic=19
+                        }
+                        if(bt1.pic==17) // RGBW Light
+                        {
+                            bt1.pic=20
+                        }
+                        bt1state.val=1
+                    }else
                     {
-                        bt1.pic=19
+                        if(bt1.pic==18) // Fan
+                        {
+                            bt1.pic=15
+                        }
+                        if(bt1.pic==19) // White Light
+                        {
+                            bt1.pic=16
+                        }
+                        if(bt1.pic==20) // RGBW Light
+                        {
+                            bt1.pic=17
+                        }
+                        bt1state.val=0
                     }
-                    if(bt1.pic==17) // RGBW Light
-                    {
-                        bt1.pic=20
-                    }
-                    bt1state.val=1
-                }else
-                {
-                    if(bt1.pic==18) // Fan
-                    {
-                        bt1.pic=15
-                    }
-                    if(bt1.pic==19) // White Light
-                    {
-                        bt1.pic=16
-                    }
-                    if(bt1.pic==20) // RGBW Light
-                    {
-                        bt1.pic=17
-                    }
-                    bt1state.val=0
+                    // Off Switch
                 }
-                // Off Switch
             }
         
 Picture bt2
@@ -1087,264 +1239,337 @@ Picture bt2
     
     Events
         Touch Press Event
-            // Sets the trigger name and id for a potentional submenu
-            varstor.smtrigid.val=2
-            varstor.smtrigname.txt=bt2name.txt
-            if(bt2type.val==0) // Light (RGBW) if held goto submenu
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=1
-            }
-            if(bt2type.val==1) // Light (RGBKW)
-            {
-                rgbwhold.en=1
-            }
-            if(bt2type.val==2) // Light (KW)
-            {
-                rgbkwhold.en=1
-            }
-            if(bt2type.val==3) // Dimmer
-            {
-                kwhold.en=1
-            }
-            if(bt2type.val==4) // Dimmer
-            {
-                dimhold.en=1
-            }
-            if(bt2type.val==5) // Toggle
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
-                if(bt2state.val==0) // Switch to on
+                // Sets the trigger name and id for a potentional submenu
+                varstor.smtrigid.val=2
+                varstor.smtrigname.txt=bt2name.txt
+                if(bt2type.val==0) // Light (RGBW) if held goto submenu
                 {
-                    if(bt2.pic==15) // Fan
-                    {
-                        bt2.pic=18
-                    }
-                    if(bt2.pic==16) // White Light
-                    {
-                        bt2.pic=19
-                    }
-                    if(bt2.pic==17) // RGBW Light
-                    {
-                        bt2.pic=20
-                    }
-                    bt2state.val=1
-                }else
-                {
-                    if(bt2.pic==18) // Fan
-                    {
-                        bt2.pic=15
-                    }
-                    if(bt2.pic==19) // White Light
-                    {
-                        bt2.pic=16
-                    }
-                    if(bt2.pic==20) // RGBW Light
-                    {
-                        bt2.pic=17
-                    }
-                    bt2state.val=0
+                    rgbhold.en=1
                 }
-            }
-            if(bt2type.val==6) // static
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"run\"}}",0
+                if(bt2type.val==1) // Light (RGBKW)
+                {
+                    rgbwhold.en=1
+                }
+                if(bt2type.val==2) // Light (KW)
+                {
+                    rgbkwhold.en=1
+                }
+                if(bt2type.val==3) // Dimmer
+                {
+                    kwhold.en=1
+                }
+                if(bt2type.val==4) // Dimmer
+                {
+                    dimhold.en=1
+                }
+                if(bt2type.val==5) // Toggle
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    if(bt2state.val==0) // Switch to on
+                    {
+                        if(bt2.pic==15) // Fan
+                        {
+                            bt2.pic=18
+                        }
+                        if(bt2.pic==16) // White Light
+                        {
+                            bt2.pic=19
+                        }
+                        if(bt2.pic==17) // RGBW Light
+                        {
+                            bt2.pic=20
+                        }
+                        bt2state.val=1
+                    }else
+                    {
+                        if(bt2.pic==18) // Fan
+                        {
+                            bt2.pic=15
+                        }
+                        if(bt2.pic==19) // White Light
+                        {
+                            bt2.pic=16
+                        }
+                        if(bt2.pic==20) // RGBW Light
+                        {
+                            bt2.pic=17
+                        }
+                        bt2state.val=0
+                    }
+                }
+                if(bt2type.val==6) // static
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"run\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                if(bt2type.val==7&&pagereader.en==0) // submenu
+                {
+                    if(varstor.isnested.val==0)
+                    {
+                        // Sets that we are trying to enter a nest
+                        varstor.isnested.val=3
+                    }else
+                    {
+                        // Sets that we are trying to continue down
+                        varstor.isnested.val=1
+                    }
+                    varstor.nestdir.val=1 // 1 is increasing depth 0 is subtracting depth
+                    varstor.nestdepth.val++
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Enables the page reading timer
+                    varstor.perror.val=0
+                    // Resets the page timeout before being used
+                    pagereader.en=1
+                }
             }
         
         Touch Release Event
-            if(bt2type.val==0)// Light (RGBW) Released (just toggle)
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt2state.val==0) // Switch to on
+                if(bt2type.val==0)// Light (RGBW) Released (just toggle)
                 {
-                    if(bt2.pic==15) // Fan
+                    rgbhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt2state.val==0) // Switch to on
                     {
-                        bt2.pic=18
-                    }
-                    if(bt2.pic==16) // White Light
+                        if(bt2.pic==15) // Fan
+                        {
+                            bt2.pic=18
+                        }
+                        if(bt2.pic==16) // White Light
+                        {
+                            bt2.pic=19
+                        }
+                        if(bt2.pic==17) // RGBW Light
+                        {
+                            bt2.pic=20
+                        }
+                        bt2state.val=1
+                    }else
                     {
-                        bt2.pic=19
+                        if(bt2.pic==18) // Fan
+                        {
+                            bt2.pic=15
+                        }
+                        if(bt2.pic==19) // White Light
+                        {
+                            bt2.pic=16
+                        }
+                        if(bt2.pic==20) // RGBW Light
+                        {
+                            bt2.pic=17
+                        }
+                        bt2state.val=0
                     }
-                    if(bt2.pic==17) // RGBW Light
-                    {
-                        bt2.pic=20
-                    }
-                    bt2state.val=1
-                }else
-                {
-                    if(bt2.pic==18) // Fan
-                    {
-                        bt2.pic=15
-                    }
-                    if(bt2.pic==19) // White Light
-                    {
-                        bt2.pic=16
-                    }
-                    if(bt2.pic==20) // RGBW Light
-                    {
-                        bt2.pic=17
-                    }
-                    bt2state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt2type.val==1)// Light (RGBKW) Released (just toggle)
-            {
-                rgbwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt2state.val==0) // Switch to on
+                if(bt2type.val==1)// Light (RGBKW) Released (just toggle)
                 {
-                    if(bt2.pic==15) // Fan
+                    rgbwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt2state.val==0) // Switch to on
                     {
-                        bt2.pic=18
-                    }
-                    if(bt2.pic==16) // White Light
+                        if(bt2.pic==15) // Fan
+                        {
+                            bt2.pic=18
+                        }
+                        if(bt2.pic==16) // White Light
+                        {
+                            bt2.pic=19
+                        }
+                        if(bt2.pic==17) // RGBW Light
+                        {
+                            bt2.pic=20
+                        }
+                        bt2state.val=1
+                    }else
                     {
-                        bt2.pic=19
+                        if(bt2.pic==18) // Fan
+                        {
+                            bt2.pic=15
+                        }
+                        if(bt2.pic==19) // White Light
+                        {
+                            bt2.pic=16
+                        }
+                        if(bt2.pic==20) // RGBW Light
+                        {
+                            bt2.pic=17
+                        }
+                        bt2state.val=0
                     }
-                    if(bt2.pic==17) // RGBW Light
-                    {
-                        bt2.pic=20
-                    }
-                    bt2state.val=1
-                }else
-                {
-                    if(bt2.pic==18) // Fan
-                    {
-                        bt2.pic=15
-                    }
-                    if(bt2.pic==19) // White Light
-                    {
-                        bt2.pic=16
-                    }
-                    if(bt2.pic==20) // RGBW Light
-                    {
-                        bt2.pic=17
-                    }
-                    bt2state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt2type.val==2)// Light (KW) Released (just toggle)
-            {
-                rgbkwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt2state.val==0) // Switch to on
+                if(bt2type.val==2)// Light (KW) Released (just toggle)
                 {
-                    if(bt2.pic==15) // Fan
+                    rgbkwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt2state.val==0) // Switch to on
                     {
-                        bt2.pic=18
-                    }
-                    if(bt2.pic==16) // White Light
+                        if(bt2.pic==15) // Fan
+                        {
+                            bt2.pic=18
+                        }
+                        if(bt2.pic==16) // White Light
+                        {
+                            bt2.pic=19
+                        }
+                        if(bt2.pic==17) // RGBW Light
+                        {
+                            bt2.pic=20
+                        }
+                        bt2state.val=1
+                    }else
                     {
-                        bt2.pic=19
+                        if(bt2.pic==18) // Fan
+                        {
+                            bt2.pic=15
+                        }
+                        if(bt2.pic==19) // White Light
+                        {
+                            bt2.pic=16
+                        }
+                        if(bt2.pic==20) // RGBW Light
+                        {
+                            bt2.pic=17
+                        }
+                        bt2state.val=0
                     }
-                    if(bt2.pic==17) // RGBW Light
-                    {
-                        bt2.pic=20
-                    }
-                    bt2state.val=1
-                }else
-                {
-                    if(bt2.pic==18) // Fan
-                    {
-                        bt2.pic=15
-                    }
-                    if(bt2.pic==19) // White Light
-                    {
-                        bt2.pic=16
-                    }
-                    if(bt2.pic==20) // RGBW Light
-                    {
-                        bt2.pic=17
-                    }
-                    bt2state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt2type.val==3) // Dimmer Released (just toggle)
-            {
-                kwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt2state.val==0) // Switch to on
+                if(bt2type.val==3) // Dimmer Released (just toggle)
                 {
-                    if(bt2.pic==15) // Fan
+                    kwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt2state.val==0) // Switch to on
                     {
-                        bt2.pic=18
-                    }
-                    if(bt2.pic==16) // White Light
+                        if(bt2.pic==15) // Fan
+                        {
+                            bt2.pic=18
+                        }
+                        if(bt2.pic==16) // White Light
+                        {
+                            bt2.pic=19
+                        }
+                        if(bt2.pic==17) // RGBW Light
+                        {
+                            bt2.pic=20
+                        }
+                        bt2state.val=1
+                    }else
                     {
-                        bt2.pic=19
+                        if(bt2.pic==18) // Fan
+                        {
+                            bt2.pic=15
+                        }
+                        if(bt2.pic==19) // White Light
+                        {
+                            bt2.pic=16
+                        }
+                        if(bt2.pic==20) // RGBW Light
+                        {
+                            bt2.pic=17
+                        }
+                        bt2state.val=0
                     }
-                    if(bt2.pic==17) // RGBW Light
-                    {
-                        bt2.pic=20
-                    }
-                    bt2state.val=1
-                }else
-                {
-                    if(bt2.pic==18) // Fan
-                    {
-                        bt2.pic=15
-                    }
-                    if(bt2.pic==19) // White Light
-                    {
-                        bt2.pic=16
-                    }
-                    if(bt2.pic==20) // RGBW Light
-                    {
-                        bt2.pic=17
-                    }
-                    bt2state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt2type.val==4) // Dimmer Released (just toggle)
-            {
-                dimhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt2state.val==0) // Switch to on
+                if(bt2type.val==4) // Dimmer Released (just toggle)
                 {
-                    if(bt2.pic==15) // Fan
+                    dimhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"2\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt2state.val==0) // Switch to on
                     {
-                        bt2.pic=18
-                    }
-                    if(bt2.pic==16) // White Light
+                        if(bt2.pic==15) // Fan
+                        {
+                            bt2.pic=18
+                        }
+                        if(bt2.pic==16) // White Light
+                        {
+                            bt2.pic=19
+                        }
+                        if(bt2.pic==17) // RGBW Light
+                        {
+                            bt2.pic=20
+                        }
+                        bt2state.val=1
+                    }else
                     {
-                        bt2.pic=19
+                        if(bt2.pic==18) // Fan
+                        {
+                            bt2.pic=15
+                        }
+                        if(bt2.pic==19) // White Light
+                        {
+                            bt2.pic=16
+                        }
+                        if(bt2.pic==20) // RGBW Light
+                        {
+                            bt2.pic=17
+                        }
+                        bt2state.val=0
                     }
-                    if(bt2.pic==17) // RGBW Light
-                    {
-                        bt2.pic=20
-                    }
-                    bt2state.val=1
-                }else
-                {
-                    if(bt2.pic==18) // Fan
-                    {
-                        bt2.pic=15
-                    }
-                    if(bt2.pic==19) // White Light
-                    {
-                        bt2.pic=16
-                    }
-                    if(bt2.pic==20) // RGBW Light
-                    {
-                        bt2.pic=17
-                    }
-                    bt2state.val=0
+                    // Off Switch
                 }
-                // Off Switch
             }
         
 Picture bt3
     Attributes
-        ID                                  : 9
+        ID                                  : 8
         Scope                               : local
         Dragging                            : 0
         Disable release event after dragging: 0
@@ -1352,262 +1577,673 @@ Picture bt3
     
     Events
         Touch Press Event
-            // Sets the trigger name and id for a potentional submenu
-            varstor.smtrigid.val=3
-            varstor.smtrigname.txt=bt3name.txt
-            if(bt3type.val==0) // Light (RGBW) if held goto submenu
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=1
-            }
-            if(bt3type.val==1) // Light (RGBKW)
-            {
-                rgbwhold.en=1
-            }
-            if(bt3type.val==2) // Light (KW)
-            {
-                rgbkwhold.en=1
-            }
-            if(bt3type.val==3) // Dimmer
-            {
-                kwhold.en=1
-            }
-            if(bt3type.val==4) // Dimmer
-            {
-                dimhold.en=1
-            }
-            if(bt3type.val==5) // Toggle
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
-                if(bt3state.val==0) // Switch to on
+                // Sets the trigger name and id for a potentional submenu
+                varstor.smtrigid.val=3
+                varstor.smtrigname.txt=bt3name.txt
+                if(bt3type.val==0) // Light (RGBW) if held goto submenu
                 {
-                    if(bt3.pic==15) // Fan
-                    {
-                        bt3.pic=18
-                    }
-                    if(bt3.pic==16) // White Light
-                    {
-                        bt3.pic=19
-                    }
-                    if(bt3.pic==17) // RGBW Light
-                    {
-                        bt3.pic=20
-                    }
-                    bt3state.val=1
-                }else
-                {
-                    if(bt3.pic==18) // Fan
-                    {
-                        bt3.pic=15
-                    }
-                    if(bt3.pic==19) // White Light
-                    {
-                        bt3.pic=16
-                    }
-                    if(bt3.pic==20) // RGBW Light
-                    {
-                        bt3.pic=17
-                    }
-                    bt3state.val=0
+                    rgbhold.en=1
                 }
-            }
-            if(bt3type.val==6) // static
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"run\"}}",0
+                if(bt3type.val==1) // Light (RGBKW)
+                {
+                    rgbwhold.en=1
+                }
+                if(bt3type.val==2) // Light (KW)
+                {
+                    rgbkwhold.en=1
+                }
+                if(bt3type.val==3) // Dimmer
+                {
+                    kwhold.en=1
+                }
+                if(bt3type.val==4) // Dimmer
+                {
+                    dimhold.en=1
+                }
+                if(bt3type.val==5) // Toggle
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    if(bt3state.val==0) // Switch to on
+                    {
+                        if(bt3.pic==15) // Fan
+                        {
+                            bt3.pic=18
+                        }
+                        if(bt3.pic==16) // White Light
+                        {
+                            bt3.pic=19
+                        }
+                        if(bt3.pic==17) // RGBW Light
+                        {
+                            bt3.pic=20
+                        }
+                        bt3state.val=1
+                    }else
+                    {
+                        if(bt3.pic==18) // Fan
+                        {
+                            bt3.pic=15
+                        }
+                        if(bt3.pic==19) // White Light
+                        {
+                            bt3.pic=16
+                        }
+                        if(bt3.pic==20) // RGBW Light
+                        {
+                            bt3.pic=17
+                        }
+                        bt3state.val=0
+                    }
+                }
+                if(bt3type.val==6) // static
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"run\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                if(bt3type.val==7&&pagereader.en==0) // submenu
+                {
+                    if(varstor.isnested.val==0)
+                    {
+                        // Sets that we are trying to enter a nest
+                        varstor.isnested.val=3
+                    }else
+                    {
+                        // Sets that we are trying to continue down
+                        varstor.isnested.val=1
+                    }
+                    varstor.nestdir.val=1 // 1 is increasing depth 0 is subtracting depth
+                    varstor.nestdepth.val++
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Enables the page reading timer
+                    varstor.perror.val=0
+                    // Resets the page timeout before being used
+                    pagereader.en=1
+                }
             }
         
         Touch Release Event
-            if(bt3type.val==0)// Light (RGBW) Released (just toggle)
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt3state.val==0) // Switch to on
+                if(bt3type.val==0)// Light (RGBW) Released (just toggle)
                 {
-                    if(bt3.pic==15) // Fan
+                    rgbhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt3state.val==0) // Switch to on
                     {
-                        bt3.pic=18
-                    }
-                    if(bt3.pic==16) // White Light
+                        if(bt3.pic==15) // Fan
+                        {
+                            bt3.pic=18
+                        }
+                        if(bt3.pic==16) // White Light
+                        {
+                            bt3.pic=19
+                        }
+                        if(bt3.pic==17) // RGBW Light
+                        {
+                            bt3.pic=20
+                        }
+                        bt3state.val=1
+                    }else
                     {
-                        bt3.pic=19
+                        if(bt3.pic==18) // Fan
+                        {
+                            bt3.pic=15
+                        }
+                        if(bt3.pic==19) // White Light
+                        {
+                            bt3.pic=16
+                        }
+                        if(bt3.pic==20) // RGBW Light
+                        {
+                            bt3.pic=17
+                        }
+                        bt3state.val=0
                     }
-                    if(bt3.pic==17) // RGBW Light
-                    {
-                        bt3.pic=20
-                    }
-                    bt3state.val=1
-                }else
-                {
-                    if(bt3.pic==18) // Fan
-                    {
-                        bt3.pic=15
-                    }
-                    if(bt3.pic==19) // White Light
-                    {
-                        bt3.pic=16
-                    }
-                    if(bt3.pic==20) // RGBW Light
-                    {
-                        bt3.pic=17
-                    }
-                    bt3state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt3type.val==1)// Light (RGBKW) Released (just toggle)
-            {
-                rgbwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt3state.val==0) // Switch to on
+                if(bt3type.val==1)// Light (RGBKW) Released (just toggle)
                 {
-                    if(bt3.pic==15) // Fan
+                    rgbwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt3state.val==0) // Switch to on
                     {
-                        bt3.pic=18
-                    }
-                    if(bt3.pic==16) // White Light
+                        if(bt3.pic==15) // Fan
+                        {
+                            bt3.pic=18
+                        }
+                        if(bt3.pic==16) // White Light
+                        {
+                            bt3.pic=19
+                        }
+                        if(bt3.pic==17) // RGBW Light
+                        {
+                            bt3.pic=20
+                        }
+                        bt3state.val=1
+                    }else
                     {
-                        bt3.pic=19
+                        if(bt3.pic==18) // Fan
+                        {
+                            bt3.pic=15
+                        }
+                        if(bt3.pic==19) // White Light
+                        {
+                            bt3.pic=16
+                        }
+                        if(bt3.pic==20) // RGBW Light
+                        {
+                            bt3.pic=17
+                        }
+                        bt3state.val=0
                     }
-                    if(bt3.pic==17) // RGBW Light
-                    {
-                        bt3.pic=20
-                    }
-                    bt3state.val=1
-                }else
-                {
-                    if(bt3.pic==18) // Fan
-                    {
-                        bt3.pic=15
-                    }
-                    if(bt3.pic==19) // White Light
-                    {
-                        bt3.pic=16
-                    }
-                    if(bt3.pic==20) // RGBW Light
-                    {
-                        bt3.pic=17
-                    }
-                    bt3state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt3type.val==2)// Light (KW) Released (just toggle)
-            {
-                rgbkwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt3state.val==0) // Switch to on
+                if(bt3type.val==2)// Light (KW) Released (just toggle)
                 {
-                    if(bt3.pic==15) // Fan
+                    rgbkwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt3state.val==0) // Switch to on
                     {
-                        bt3.pic=18
-                    }
-                    if(bt3.pic==16) // White Light
+                        if(bt3.pic==15) // Fan
+                        {
+                            bt3.pic=18
+                        }
+                        if(bt3.pic==16) // White Light
+                        {
+                            bt3.pic=19
+                        }
+                        if(bt3.pic==17) // RGBW Light
+                        {
+                            bt3.pic=20
+                        }
+                        bt3state.val=1
+                    }else
                     {
-                        bt3.pic=19
+                        if(bt3.pic==18) // Fan
+                        {
+                            bt3.pic=15
+                        }
+                        if(bt3.pic==19) // White Light
+                        {
+                            bt3.pic=16
+                        }
+                        if(bt3.pic==20) // RGBW Light
+                        {
+                            bt3.pic=17
+                        }
+                        bt3state.val=0
                     }
-                    if(bt3.pic==17) // RGBW Light
-                    {
-                        bt3.pic=20
-                    }
-                    bt3state.val=1
-                }else
-                {
-                    if(bt3.pic==18) // Fan
-                    {
-                        bt3.pic=15
-                    }
-                    if(bt3.pic==19) // White Light
-                    {
-                        bt3.pic=16
-                    }
-                    if(bt3.pic==20) // RGBW Light
-                    {
-                        bt3.pic=17
-                    }
-                    bt3state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt3type.val==3) // Dimmer Released (just toggle)
-            {
-                kwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt3state.val==0) // Switch to on
+                if(bt3type.val==3) // Dimmer Released (just toggle)
                 {
-                    if(bt3.pic==15) // Fan
+                    kwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt3state.val==0) // Switch to on
                     {
-                        bt3.pic=18
-                    }
-                    if(bt3.pic==16) // White Light
+                        if(bt3.pic==15) // Fan
+                        {
+                            bt3.pic=18
+                        }
+                        if(bt3.pic==16) // White Light
+                        {
+                            bt3.pic=19
+                        }
+                        if(bt3.pic==17) // RGBW Light
+                        {
+                            bt3.pic=20
+                        }
+                        bt3state.val=1
+                    }else
                     {
-                        bt3.pic=19
+                        if(bt3.pic==18) // Fan
+                        {
+                            bt3.pic=15
+                        }
+                        if(bt3.pic==19) // White Light
+                        {
+                            bt3.pic=16
+                        }
+                        if(bt3.pic==20) // RGBW Light
+                        {
+                            bt3.pic=17
+                        }
+                        bt3state.val=0
                     }
-                    if(bt3.pic==17) // RGBW Light
-                    {
-                        bt3.pic=20
-                    }
-                    bt3state.val=1
-                }else
-                {
-                    if(bt3.pic==18) // Fan
-                    {
-                        bt3.pic=15
-                    }
-                    if(bt3.pic==19) // White Light
-                    {
-                        bt3.pic=16
-                    }
-                    if(bt3.pic==20) // RGBW Light
-                    {
-                        bt3.pic=17
-                    }
-                    bt3state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt3type.val==4) // Dimmer Released (just toggle)
-            {
-                dimhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt3state.val==0) // Switch to on
+                if(bt3type.val==4) // Dimmer Released (just toggle)
                 {
-                    if(bt3.pic==15) // Fan
+                    dimhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"3\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt3state.val==0) // Switch to on
                     {
-                        bt3.pic=18
-                    }
-                    if(bt3.pic==16) // White Light
+                        if(bt3.pic==15) // Fan
+                        {
+                            bt3.pic=18
+                        }
+                        if(bt3.pic==16) // White Light
+                        {
+                            bt3.pic=19
+                        }
+                        if(bt3.pic==17) // RGBW Light
+                        {
+                            bt3.pic=20
+                        }
+                        bt3state.val=1
+                    }else
                     {
-                        bt3.pic=19
+                        if(bt3.pic==18) // Fan
+                        {
+                            bt3.pic=15
+                        }
+                        if(bt3.pic==19) // White Light
+                        {
+                            bt3.pic=16
+                        }
+                        if(bt3.pic==20) // RGBW Light
+                        {
+                            bt3.pic=17
+                        }
+                        bt3state.val=0
                     }
-                    if(bt3.pic==17) // RGBW Light
-                    {
-                        bt3.pic=20
-                    }
-                    bt3state.val=1
-                }else
-                {
-                    if(bt3.pic==18) // Fan
-                    {
-                        bt3.pic=15
-                    }
-                    if(bt3.pic==19) // White Light
-                    {
-                        bt3.pic=16
-                    }
-                    if(bt3.pic==20) // RGBW Light
-                    {
-                        bt3.pic=17
-                    }
-                    bt3state.val=0
+                    // Off Switch
                 }
-                // Off Switch
             }
         
 Picture bt4
+    Attributes
+        ID                                  : 10
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+    
+    Events
+        Touch Press Event
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
+            {
+                // Sets the trigger name and id for a potentional submenu
+                varstor.smtrigid.val=4
+                varstor.smtrigname.txt=bt4name.txt
+                if(bt4type.val==0) // Light (RGBW) if held goto submenu
+                {
+                    rgbhold.en=1
+                }
+                if(bt4type.val==1) // Light (RGBKW)
+                {
+                    rgbwhold.en=1
+                }
+                if(bt4type.val==2) // Light (KW)
+                {
+                    rgbkwhold.en=1
+                }
+                if(bt4type.val==3) // Dimmer
+                {
+                    kwhold.en=1
+                }
+                if(bt4type.val==4) // Dimmer
+                {
+                    dimhold.en=1
+                }
+                if(bt4type.val==5) // Toggle
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    if(bt4state.val==0) // Switch to on
+                    {
+                        if(bt4.pic==15) // Fan
+                        {
+                            bt4.pic=18
+                        }
+                        if(bt4.pic==16) // White Light
+                        {
+                            bt4.pic=19
+                        }
+                        if(bt4.pic==17) // RGBW Light
+                        {
+                            bt4.pic=20
+                        }
+                        bt4state.val=1
+                    }else
+                    {
+                        if(bt4.pic==18) // Fan
+                        {
+                            bt4.pic=15
+                        }
+                        if(bt4.pic==19) // White Light
+                        {
+                            bt4.pic=16
+                        }
+                        if(bt4.pic==20) // RGBW Light
+                        {
+                            bt4.pic=17
+                        }
+                        bt4state.val=0
+                    }
+                }
+                if(bt4type.val==6) // static
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"run\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                if(bt4type.val==7&&pagereader.en==0) // submenu
+                {
+                    if(varstor.isnested.val==0)
+                    {
+                        // Sets that we are trying to enter a nest
+                        varstor.isnested.val=3
+                    }else
+                    {
+                        // Sets that we are trying to continue down
+                        varstor.isnested.val=1
+                    }
+                    varstor.nestdir.val=1 // 1 is increasing depth 0 is subtracting depth
+                    varstor.nestdepth.val++
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Enables the page reading timer
+                    varstor.perror.val=0
+                    // Resets the page timeout before being used
+                    pagereader.en=1
+                }
+            }
+        
+        Touch Release Event
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
+            {
+                if(bt4type.val==0)// Light (RGBW) Released (just toggle)
+                {
+                    rgbhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt4state.val==0) // Switch to on
+                    {
+                        if(bt4.pic==15) // Fan
+                        {
+                            bt4.pic=18
+                        }
+                        if(bt4.pic==16) // White Light
+                        {
+                            bt4.pic=19
+                        }
+                        if(bt4.pic==17) // RGBW Light
+                        {
+                            bt4.pic=20
+                        }
+                        bt4state.val=1
+                    }else
+                    {
+                        if(bt4.pic==18) // Fan
+                        {
+                            bt4.pic=15
+                        }
+                        if(bt4.pic==19) // White Light
+                        {
+                            bt4.pic=16
+                        }
+                        if(bt4.pic==20) // RGBW Light
+                        {
+                            bt4.pic=17
+                        }
+                        bt4state.val=0
+                    }
+                    // Off Switch
+                }
+                if(bt4type.val==1)// Light (RGBKW) Released (just toggle)
+                {
+                    rgbwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt4state.val==0) // Switch to on
+                    {
+                        if(bt4.pic==15) // Fan
+                        {
+                            bt4.pic=18
+                        }
+                        if(bt4.pic==16) // White Light
+                        {
+                            bt4.pic=19
+                        }
+                        if(bt4.pic==17) // RGBW Light
+                        {
+                            bt4.pic=20
+                        }
+                        bt4state.val=1
+                    }else
+                    {
+                        if(bt4.pic==18) // Fan
+                        {
+                            bt4.pic=15
+                        }
+                        if(bt4.pic==19) // White Light
+                        {
+                            bt4.pic=16
+                        }
+                        if(bt4.pic==20) // RGBW Light
+                        {
+                            bt4.pic=17
+                        }
+                        bt4state.val=0
+                    }
+                    // Off Switch
+                }
+                if(bt4type.val==2)// Light (KW) Released (just toggle)
+                {
+                    rgbkwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt4state.val==0) // Switch to on
+                    {
+                        if(bt4.pic==15) // Fan
+                        {
+                            bt4.pic=18
+                        }
+                        if(bt4.pic==16) // White Light
+                        {
+                            bt4.pic=19
+                        }
+                        if(bt4.pic==17) // RGBW Light
+                        {
+                            bt4.pic=20
+                        }
+                        bt4state.val=1
+                    }else
+                    {
+                        if(bt4.pic==18) // Fan
+                        {
+                            bt4.pic=15
+                        }
+                        if(bt4.pic==19) // White Light
+                        {
+                            bt4.pic=16
+                        }
+                        if(bt4.pic==20) // RGBW Light
+                        {
+                            bt4.pic=17
+                        }
+                        bt4state.val=0
+                    }
+                    // Off Switch
+                }
+                if(bt4type.val==3) // Dimmer Released (just toggle)
+                {
+                    kwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt4state.val==0) // Switch to on
+                    {
+                        if(bt4.pic==15) // Fan
+                        {
+                            bt4.pic=18
+                        }
+                        if(bt4.pic==16) // White Light
+                        {
+                            bt4.pic=19
+                        }
+                        if(bt4.pic==17) // RGBW Light
+                        {
+                            bt4.pic=20
+                        }
+                        bt4state.val=1
+                    }else
+                    {
+                        if(bt4.pic==18) // Fan
+                        {
+                            bt4.pic=15
+                        }
+                        if(bt4.pic==19) // White Light
+                        {
+                            bt4.pic=16
+                        }
+                        if(bt4.pic==20) // RGBW Light
+                        {
+                            bt4.pic=17
+                        }
+                        bt4state.val=0
+                    }
+                    // Off Switch
+                }
+                if(bt4type.val==4) // Dimmer Released (just toggle)
+                {
+                    dimhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt4state.val==0) // Switch to on
+                    {
+                        if(bt4.pic==15) // Fan
+                        {
+                            bt4.pic=18
+                        }
+                        if(bt4.pic==16) // White Light
+                        {
+                            bt4.pic=19
+                        }
+                        if(bt4.pic==17) // RGBW Light
+                        {
+                            bt4.pic=20
+                        }
+                        bt4state.val=1
+                    }else
+                    {
+                        if(bt4.pic==18) // Fan
+                        {
+                            bt4.pic=15
+                        }
+                        if(bt4.pic==19) // White Light
+                        {
+                            bt4.pic=16
+                        }
+                        if(bt4.pic==20) // RGBW Light
+                        {
+                            bt4.pic=17
+                        }
+                        bt4state.val=0
+                    }
+                    // Off Switch
+                }
+            }
+        
+Picture bt5
     Attributes
         ID                                  : 11
         Scope                               : local
@@ -1617,529 +2253,467 @@ Picture bt4
     
     Events
         Touch Press Event
-            // Sets the trigger name and id for a potentional submenu
-            varstor.smtrigid.val=4
-            varstor.smtrigname.txt=bt4name.txt
-            if(bt4type.val==0) // Light (RGBW) if held goto submenu
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=1
-            }
-            if(bt4type.val==1) // Light (RGBKW)
-            {
-                rgbwhold.en=1
-            }
-            if(bt4type.val==2) // Light (KW)
-            {
-                rgbkwhold.en=1
-            }
-            if(bt4type.val==3) // Dimmer
-            {
-                kwhold.en=1
-            }
-            if(bt4type.val==4) // Dimmer
-            {
-                dimhold.en=1
-            }
-            if(bt4type.val==5) // Toggle
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
-                if(bt4state.val==0) // Switch to on
+                // Sets the trigger name and id for a potentional submenu
+                varstor.smtrigid.val=5
+                varstor.smtrigname.txt=bt5name.txt
+                if(bt5type.val==0) // Light (RGBW) if held goto submenu
                 {
-                    if(bt4.pic==15) // Fan
-                    {
-                        bt4.pic=18
-                    }
-                    if(bt4.pic==16) // White Light
-                    {
-                        bt4.pic=19
-                    }
-                    if(bt4.pic==17) // RGBW Light
-                    {
-                        bt4.pic=20
-                    }
-                    bt4state.val=1
-                }else
-                {
-                    if(bt4.pic==18) // Fan
-                    {
-                        bt4.pic=15
-                    }
-                    if(bt4.pic==19) // White Light
-                    {
-                        bt4.pic=16
-                    }
-                    if(bt4.pic==20) // RGBW Light
-                    {
-                        bt4.pic=17
-                    }
-                    bt4state.val=0
+                    rgbhold.en=1
                 }
-            }
-            if(bt4type.val==6) // static
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"run\"}}",0
+                if(bt5type.val==1) // Light (RGBKW)
+                {
+                    rgbwhold.en=1
+                }
+                if(bt5type.val==2) // Light (KW)
+                {
+                    rgbkwhold.en=1
+                }
+                if(bt5type.val==3) // Dimmer
+                {
+                    kwhold.en=1
+                }
+                if(bt5type.val==4) // Dimmer
+                {
+                    dimhold.en=1
+                }
+                if(bt5type.val==5) // Toggle
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    if(bt5state.val==0) // Switch to on
+                    {
+                        if(bt5.pic==15) // Fan
+                        {
+                            bt5.pic=18
+                        }
+                        if(bt5.pic==16) // White Light
+                        {
+                            bt5.pic=19
+                        }
+                        if(bt5.pic==17) // RGBW Light
+                        {
+                            bt5.pic=20
+                        }
+                        bt5state.val=1
+                    }else
+                    {
+                        if(bt5.pic==18) // Fan
+                        {
+                            bt5.pic=15
+                        }
+                        if(bt5.pic==19) // White Light
+                        {
+                            bt5.pic=16
+                        }
+                        if(bt5.pic==20) // RGBW Light
+                        {
+                            bt5.pic=17
+                        }
+                        bt5state.val=0
+                    }
+                }
+                if(bt5type.val==6) // static
+                {
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"run\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                if(bt5type.val==7&&pagereader.en==0) // submenu
+                {
+                    if(varstor.isnested.val==0)
+                    {
+                        // Sets that we are trying to enter a nest
+                        varstor.isnested.val=3
+                    }else
+                    {
+                        // Sets that we are trying to continue down
+                        varstor.isnested.val=1
+                    }
+                    varstor.nestdir.val=1 // 1 is increasing depth 0 is subtracting depth
+                    varstor.nestdepth.val++
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Enables the page reading timer
+                    varstor.perror.val=0
+                    // Resets the page timeout before being used
+                    pagereader.en=1
+                }
             }
         
         Touch Release Event
-            if(bt4type.val==0)// Light (RGBW) Released (just toggle)
+            if(pagereader.en==0) // Disables all buttons when a page is being read (This is to prevent weird bugs from loading submenu's while a page is being loaded as it breaks the page parser)
             {
-                rgbhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt4state.val==0) // Switch to on
+                if(bt5type.val==0)// Light (RGBW) Released (just toggle)
                 {
-                    if(bt4.pic==15) // Fan
+                    rgbhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt5state.val==0) // Switch to on
                     {
-                        bt4.pic=18
-                    }
-                    if(bt4.pic==16) // White Light
+                        if(bt5.pic==15) // Fan
+                        {
+                            bt5.pic=18
+                        }
+                        if(bt5.pic==16) // White Light
+                        {
+                            bt5.pic=19
+                        }
+                        if(bt5.pic==17) // RGBW Light
+                        {
+                            bt5.pic=20
+                        }
+                        bt5state.val=1
+                    }else
                     {
-                        bt4.pic=19
+                        if(bt5.pic==18) // Fan
+                        {
+                            bt5.pic=15
+                        }
+                        if(bt5.pic==19) // White Light
+                        {
+                            bt5.pic=16
+                        }
+                        if(bt5.pic==20) // RGBW Light
+                        {
+                            bt5.pic=17
+                        }
+                        bt5state.val=0
                     }
-                    if(bt4.pic==17) // RGBW Light
-                    {
-                        bt4.pic=20
-                    }
-                    bt4state.val=1
-                }else
-                {
-                    if(bt4.pic==18) // Fan
-                    {
-                        bt4.pic=15
-                    }
-                    if(bt4.pic==19) // White Light
-                    {
-                        bt4.pic=16
-                    }
-                    if(bt4.pic==20) // RGBW Light
-                    {
-                        bt4.pic=17
-                    }
-                    bt4state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt4type.val==1)// Light (RGBKW) Released (just toggle)
-            {
-                rgbwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt4state.val==0) // Switch to on
+                if(bt5type.val==1)// Light (RGBKW) Released (just toggle)
                 {
-                    if(bt4.pic==15) // Fan
+                    rgbwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt5state.val==0) // Switch to on
                     {
-                        bt4.pic=18
-                    }
-                    if(bt4.pic==16) // White Light
+                        if(bt5.pic==15) // Fan
+                        {
+                            bt5.pic=18
+                        }
+                        if(bt5.pic==16) // White Light
+                        {
+                            bt5.pic=19
+                        }
+                        if(bt5.pic==17) // RGBW Light
+                        {
+                            bt5.pic=20
+                        }
+                        bt5state.val=1
+                    }else
                     {
-                        bt4.pic=19
+                        if(bt5.pic==18) // Fan
+                        {
+                            bt5.pic=15
+                        }
+                        if(bt5.pic==19) // White Light
+                        {
+                            bt5.pic=16
+                        }
+                        if(bt5.pic==20) // RGBW Light
+                        {
+                            bt5.pic=17
+                        }
+                        bt5state.val=0
                     }
-                    if(bt4.pic==17) // RGBW Light
-                    {
-                        bt4.pic=20
-                    }
-                    bt4state.val=1
-                }else
-                {
-                    if(bt4.pic==18) // Fan
-                    {
-                        bt4.pic=15
-                    }
-                    if(bt4.pic==19) // White Light
-                    {
-                        bt4.pic=16
-                    }
-                    if(bt4.pic==20) // RGBW Light
-                    {
-                        bt4.pic=17
-                    }
-                    bt4state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt4type.val==2)// Light (KW) Released (just toggle)
-            {
-                rgbkwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt4state.val==0) // Switch to on
+                if(bt5type.val==2)// Light (KW) Released (just toggle)
                 {
-                    if(bt4.pic==15) // Fan
+                    rgbkwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt5state.val==0) // Switch to on
                     {
-                        bt4.pic=18
-                    }
-                    if(bt4.pic==16) // White Light
+                        if(bt5.pic==15) // Fan
+                        {
+                            bt5.pic=18
+                        }
+                        if(bt5.pic==16) // White Light
+                        {
+                            bt5.pic=19
+                        }
+                        if(bt5.pic==17) // RGBW Light
+                        {
+                            bt5.pic=20
+                        }
+                        bt5state.val=1
+                    }else
                     {
-                        bt4.pic=19
+                        if(bt5.pic==18) // Fan
+                        {
+                            bt5.pic=15
+                        }
+                        if(bt5.pic==19) // White Light
+                        {
+                            bt5.pic=16
+                        }
+                        if(bt5.pic==20) // RGBW Light
+                        {
+                            bt5.pic=17
+                        }
+                        bt5state.val=0
                     }
-                    if(bt4.pic==17) // RGBW Light
-                    {
-                        bt4.pic=20
-                    }
-                    bt4state.val=1
-                }else
-                {
-                    if(bt4.pic==18) // Fan
-                    {
-                        bt4.pic=15
-                    }
-                    if(bt4.pic==19) // White Light
-                    {
-                        bt4.pic=16
-                    }
-                    if(bt4.pic==20) // RGBW Light
-                    {
-                        bt4.pic=17
-                    }
-                    bt4state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt4type.val==3) // Dimmer Released (just toggle)
-            {
-                kwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt4state.val==0) // Switch to on
+                if(bt5type.val==3) // Dimmer Released (just toggle)
                 {
-                    if(bt4.pic==15) // Fan
+                    kwhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt5state.val==0) // Switch to on
                     {
-                        bt4.pic=18
-                    }
-                    if(bt4.pic==16) // White Light
+                        if(bt5.pic==15) // Fan
+                        {
+                            bt5.pic=18
+                        }
+                        if(bt5.pic==16) // White Light
+                        {
+                            bt5.pic=19
+                        }
+                        if(bt5.pic==17) // RGBW Light
+                        {
+                            bt5.pic=20
+                        }
+                        bt5state.val=1
+                    }else
                     {
-                        bt4.pic=19
+                        if(bt5.pic==18) // Fan
+                        {
+                            bt5.pic=15
+                        }
+                        if(bt5.pic==19) // White Light
+                        {
+                            bt5.pic=16
+                        }
+                        if(bt5.pic==20) // RGBW Light
+                        {
+                            bt5.pic=17
+                        }
+                        bt5state.val=0
                     }
-                    if(bt4.pic==17) // RGBW Light
-                    {
-                        bt4.pic=20
-                    }
-                    bt4state.val=1
-                }else
-                {
-                    if(bt4.pic==18) // Fan
-                    {
-                        bt4.pic=15
-                    }
-                    if(bt4.pic==19) // White Light
-                    {
-                        bt4.pic=16
-                    }
-                    if(bt4.pic==20) // RGBW Light
-                    {
-                        bt4.pic=17
-                    }
-                    bt4state.val=0
+                    // Off Switch
                 }
-                // Off Switch
-            }
-            if(bt4type.val==4) // Dimmer Released (just toggle)
-            {
-                dimhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"4\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt4state.val==0) // Switch to on
+                if(bt5type.val==4) // Dimmer Released (just toggle)
                 {
-                    if(bt4.pic==15) // Fan
+                    dimhold.en=0
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                    // Handles changing the state based on toggles
+                    if(bt5state.val==0) // Switch to on
                     {
-                        bt4.pic=18
-                    }
-                    if(bt4.pic==16) // White Light
+                        if(bt5.pic==15) // Fan
+                        {
+                            bt5.pic=18
+                        }
+                        if(bt5.pic==16) // White Light
+                        {
+                            bt5.pic=19
+                        }
+                        if(bt5.pic==17) // RGBW Light
+                        {
+                            bt5.pic=20
+                        }
+                        bt5state.val=1
+                    }else
                     {
-                        bt4.pic=19
+                        if(bt5.pic==18) // Fan
+                        {
+                            bt5.pic=15
+                        }
+                        if(bt5.pic==19) // White Light
+                        {
+                            bt5.pic=16
+                        }
+                        if(bt5.pic==20) // RGBW Light
+                        {
+                            bt5.pic=17
+                        }
+                        bt5state.val=0
                     }
-                    if(bt4.pic==17) // RGBW Light
-                    {
-                        bt4.pic=20
-                    }
-                    bt4state.val=1
-                }else
-                {
-                    if(bt4.pic==18) // Fan
-                    {
-                        bt4.pic=15
-                    }
-                    if(bt4.pic==19) // White Light
-                    {
-                        bt4.pic=16
-                    }
-                    if(bt4.pic==20) // RGBW Light
-                    {
-                        bt4.pic=17
-                    }
-                    bt4state.val=0
+                    // Off Switch
                 }
-                // Off Switch
             }
         
-Picture bt5
+Button nestback
     Attributes
-        ID                                  : 12
+        ID                                  : 37
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        State                               : unpressed
+        Text                                : f
+        Max. Text Size                      : 4
+    
+    Events
+        Touch Press Event
+            if(pagereader.en==0) // submenu and checks if the pagereader is enabled if it is don't do anything
+            {
+                varstor.nestdir.val=0
+                // Checks if the next depth is 0. If the value is below 0 we know to kick out of the nesting entirely
+                if(varstor.nestdepth.val<=0)
+                {
+                    // The value starts off negative as to allow the first depth to roll over to the value of 0
+                    varstor.nestdepth.val=-1
+                    varstor.isnested.val=2 // 2 means that we are in a special case of trying to exit the nest. This is so we can check if it fails and if it does we can retry
+                    // Loads the original page that the nesting started in
+                    prints "{\"request\":\"page_",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}",0
+                }else
+                {
+                    varstor.nestdepth.val--
+                    prints "{\"update\":\"btn\",\"data\":{\"btn\":\"0\",\"action\":\"nesting\",\"page\":\"",0
+                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\",\"depth\":\"",0
+                    covx varstor.nestdepth.val,varstor.numtotxt.txt,0,0
+                    prints varstor.numtotxt.txt,0
+                    prints "\"}}",0
+                }
+                // Enables the page reading timer
+                varstor.perror.val=0
+                // Resets the page timeout before being used
+                pagereader.en=1
+            }
+        
+Button home
+    Attributes
+        ID                                  : 39
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+        State                               : unpressed
+        Text                                : H
+        Max. Text Size                      : 4
+    
+    Events
+        Touch Press Event
+            varstor.nestdir.val=0
+            varstor.nestdepth.val=-1
+            varstor.isnested.val=0
+            page Home
+        
+Hotspot jparser
+    Attributes
+        ID                                  : 40
         Scope                               : local
         Dragging                            : 0
         Disable release event after dragging: 0
         Send Component ID                   : disabled
     
     Events
-        Touch Press Event
-            // Sets the trigger name and id for a potentional submenu
-            varstor.smtrigid.val=5
-            varstor.smtrigname.txt=bt5name.txt
-            if(bt5type.val==0) // Light (RGBW) if held goto submenu
-            {
-                rgbhold.en=1
-            }
-            if(bt5type.val==1) // Light (RGBKW)
-            {
-                rgbwhold.en=1
-            }
-            if(bt5type.val==2) // Light (KW)
-            {
-                rgbkwhold.en=1
-            }
-            if(bt5type.val==3) // Dimmer
-            {
-                kwhold.en=1
-            }
-            if(bt5type.val==4) // Dimmer
-            {
-                dimhold.en=1
-            }
-            if(bt5type.val==5) // Toggle
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
-                if(bt5state.val==0) // Switch to on
-                {
-                    if(bt5.pic==15) // Fan
-                    {
-                        bt5.pic=18
-                    }
-                    if(bt5.pic==16) // White Light
-                    {
-                        bt5.pic=19
-                    }
-                    if(bt5.pic==17) // RGBW Light
-                    {
-                        bt5.pic=20
-                    }
-                    bt5state.val=1
-                }else
-                {
-                    if(bt5.pic==18) // Fan
-                    {
-                        bt5.pic=15
-                    }
-                    if(bt5.pic==19) // White Light
-                    {
-                        bt5.pic=16
-                    }
-                    if(bt5.pic==20) // RGBW Light
-                    {
-                        bt5.pic=17
-                    }
-                    bt5state.val=0
-                }
-            }
-            if(bt5type.val==6) // static
-            {
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"run\"}}",0
-            }
-        
         Touch Release Event
-            if(bt5type.val==0)// Light (RGBW) Released (just toggle)
+            varstor.jdepth.val=0
+            varstor.jbuffer1.txt=""
+            varstor.jbuffer2.txt=""
+            varstor.jbuffer3.txt=""
+            varstor.com.txt=""
+            strlen varstor.jrequest.txt,varstor.jlength.val
+            while(varstor.jlength.val>0)
             {
-                rgbhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt5state.val==0) // Switch to on
+                if(varstor.jdepth.val<1)
                 {
-                    if(bt5.pic==15) // Fan
-                    {
-                        bt5.pic=18
-                    }
-                    if(bt5.pic==16) // White Light
-                    {
-                        bt5.pic=19
-                    }
-                    if(bt5.pic==17) // RGBW Light
-                    {
-                        bt5.pic=20
-                    }
-                    bt5state.val=1
+                    spstr varstor.jrequest.txt,varstor.jbuffer1.txt,"/",0
+                    varstor.jbuffer2.txt=varstor.jbuffer1.txt
+                    //prints varstor.jbuffer1.txt,0
+                    varstor.jbuffer1.txt="\""
+                    varstor.jbuffer1.txt+=varstor.jbuffer2.txt
+                    varstor.jbuffer1.txt+="\":"
+                    //prints varstor.jbuffer1.txt,0
+                    //prints " ",0
+                    varstor.jdepth.val++
+                    spstr varstor.buff.txt,varstor.jbuffer3.txt,varstor.jbuffer1.txt,1
+                    //prints varstor.jbuffer3.txt,0
+                    varstor.jbuffer1.txt=varstor.jbuffer2.txt
                 }else
                 {
-                    if(bt5.pic==18) // Fan
+                    spstr varstor.jrequest.txt,varstor.jbuffer1.txt,"/",varstor.jdepth.val
+                    strlen varstor.jbuffer1.txt,varstor.jlength.val
+                    varstor.jdepth.val++
+                    if(varstor.jlength.val<1) // If we get here we know that we have selected our value so we can just copy it over
                     {
-                        bt5.pic=15
+                        substr varstor.jbuffer3.txt,varstor.jbuffer1.txt,0,1
+                        if(varstor.jbuffer1.txt=="[") // Array
+                        {
+                            spstr varstor.jbuffer3.txt,varstor.com.txt,"[",1
+                            spstr varstor.com.txt,varstor.com.txt,"]",0
+                        }else
+                        { // Not an array
+                        spstr varstor.jbuffer3.txt,varstor.com.txt,"\"",1
+                        spstr varstor.com.txt,varstor.com.txt,"\"",0
                     }
-                    if(bt5.pic==19) // White Light
-                    {
-                        bt5.pic=16
-                    }
-                    if(bt5.pic==20) // RGBW Light
-                    {
-                        bt5.pic=17
-                    }
-                    bt5state.val=0
                 }
-                // Off Switch
+                varstor.jbuffer2.txt=varstor.jbuffer1.txt
+                varstor.jbuffer1.txt="\""
+                varstor.jbuffer1.txt+=varstor.jbuffer2.txt
+                varstor.jbuffer1.txt+="\":"
+                spstr varstor.jbuffer3.txt,varstor.jbuffer3.txt,varstor.jbuffer1.txt,1
+                varstor.jbuffer1.txt=varstor.jbuffer2.txt
             }
-            if(bt5type.val==1)// Light (RGBKW) Released (just toggle)
+            strlen varstor.com.txt,varstor.jlength.val
+            if(varstor.jlength.val==0)
             {
-                rgbwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt5state.val==0) // Switch to on
-                {
-                    if(bt5.pic==15) // Fan
-                    {
-                        bt5.pic=18
-                    }
-                    if(bt5.pic==16) // White Light
-                    {
-                        bt5.pic=19
-                    }
-                    if(bt5.pic==17) // RGBW Light
-                    {
-                        bt5.pic=20
-                    }
-                    bt5state.val=1
-                }else
-                {
-                    if(bt5.pic==18) // Fan
-                    {
-                        bt5.pic=15
-                    }
-                    if(bt5.pic==19) // White Light
-                    {
-                        bt5.pic=16
-                    }
-                    if(bt5.pic==20) // RGBW Light
-                    {
-                        bt5.pic=17
-                    }
-                    bt5state.val=0
-                }
-                // Off Switch
+                strlen varstor.jbuffer1.txt,varstor.jlength.val
+            }else
+            {
+                varstor.jlength.val=0
             }
-            if(bt5type.val==2)// Light (KW) Released (just toggle)
-            {
-                rgbkwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt5state.val==0) // Switch to on
-                {
-                    if(bt5.pic==15) // Fan
-                    {
-                        bt5.pic=18
-                    }
-                    if(bt5.pic==16) // White Light
-                    {
-                        bt5.pic=19
-                    }
-                    if(bt5.pic==17) // RGBW Light
-                    {
-                        bt5.pic=20
-                    }
-                    bt5state.val=1
-                }else
-                {
-                    if(bt5.pic==18) // Fan
-                    {
-                        bt5.pic=15
-                    }
-                    if(bt5.pic==19) // White Light
-                    {
-                        bt5.pic=16
-                    }
-                    if(bt5.pic==20) // RGBW Light
-                    {
-                        bt5.pic=17
-                    }
-                    bt5state.val=0
-                }
-                // Off Switch
-            }
-            if(bt5type.val==3) // Dimmer Released (just toggle)
-            {
-                kwhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt5state.val==0) // Switch to on
-                {
-                    if(bt5.pic==15) // Fan
-                    {
-                        bt5.pic=18
-                    }
-                    if(bt5.pic==16) // White Light
-                    {
-                        bt5.pic=19
-                    }
-                    if(bt5.pic==17) // RGBW Light
-                    {
-                        bt5.pic=20
-                    }
-                    bt5state.val=1
-                }else
-                {
-                    if(bt5.pic==18) // Fan
-                    {
-                        bt5.pic=15
-                    }
-                    if(bt5.pic==19) // White Light
-                    {
-                        bt5.pic=16
-                    }
-                    if(bt5.pic==20) // RGBW Light
-                    {
-                        bt5.pic=17
-                    }
-                    bt5state.val=0
-                }
-                // Off Switch
-            }
-            if(bt5type.val==4) // Dimmer Released (just toggle)
-            {
-                dimhold.en=0
-                prints "{\"update\":\"btn\",\"data\":{\"btn\":\"5\",\"action\":\"toggle\"}}",0
-                // Handles changing the state based on toggles
-                if(bt5state.val==0) // Switch to on
-                {
-                    if(bt5.pic==15) // Fan
-                    {
-                        bt5.pic=18
-                    }
-                    if(bt5.pic==16) // White Light
-                    {
-                        bt5.pic=19
-                    }
-                    if(bt5.pic==17) // RGBW Light
-                    {
-                        bt5.pic=20
-                    }
-                    bt5state.val=1
-                }else
-                {
-                    if(bt5.pic==18) // Fan
-                    {
-                        bt5.pic=15
-                    }
-                    if(bt5.pic==19) // White Light
-                    {
-                        bt5.pic=16
-                    }
-                    if(bt5.pic==20) // RGBW Light
-                    {
-                        bt5.pic=17
-                    }
-                    bt5state.val=0
-                }
-                // Off Switch
+            doevents
             }
         
 Timer hometimer
     Attributes
-        ID         : 15
+        ID         : 14
         Scope      : local
         Period (ms): 15000
         Enabled    : yes
@@ -2153,7 +2727,7 @@ Timer hometimer
         
 Timer swipestore
     Attributes
-        ID         : 16
+        ID         : 15
         Scope      : local
         Period (ms): 50
         Enabled    : no
@@ -2165,7 +2739,7 @@ Timer swipestore
         
 Timer sreadbuffer
     Attributes
-        ID         : 17
+        ID         : 16
         Scope      : local
         Period (ms): 500
         Enabled    : no
@@ -2194,8 +2768,8 @@ Timer sreadbuffer
                     code_c
                     //
                     // Action  Parser
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"",0 // "}
+                    varstor.jrequest.txt="action"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val
                     if(varstor.txttonum.val>1)
                     {
@@ -2206,8 +2780,8 @@ Timer sreadbuffer
                         }
                         if(varstor.com.txt=="dim")
                         {
-                            spstr varstor.buff.txt,varstor.com.txt,"\",\"value\":\"",1 // ","value":"
-                            spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                            varstor.jrequest.txt="value"
+                            click jparser,0
                             covx varstor.com.txt,varstor.txttonum.val,0,0
                             varstor.brightness.val=varstor.txttonum.val
                             dim=varstor.brightness.val
@@ -2217,43 +2791,15 @@ Timer sreadbuffer
                             dim=0
                             page Sleep
                         }
-                        // {"action":"refresh","data":{"btn_0":"0","btn_1":"0","btn_2":"0","btn_3":"0","btn_4":"0","btn_5":"0"}}
-                        if(varstor.com.txt=="refresh")
-                        {
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"btn_0\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"btn_1\":\"",0
-                            covx varstor.com.txt,varstor.txttonum.val,0,0
-                            bt0state.val=varstor.txttonum.val
-                            spstr varstor.buff.txt,varstor.com.txt,"\"btn_1\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"btn_2\":\"",0
-                            covx varstor.com.txt,varstor.txttonum.val,0,0
-                            bt1state.val=varstor.txttonum.val
-                            spstr varstor.buff.txt,varstor.com.txt,"\"btn_2\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"btn_3\":\"",0
-                            covx varstor.com.txt,varstor.txttonum.val,0,0
-                            bt2state.val=varstor.txttonum.val
-                            spstr varstor.buff.txt,varstor.com.txt,"\"btn_3\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"btn_4\":\"",0
-                            covx varstor.com.txt,varstor.txttonum.val,0,0
-                            bt3state.val=varstor.txttonum.val
-                            spstr varstor.buff.txt,varstor.com.txt,"\"btn_4\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"btn_5\":\"",0
-                            covx varstor.com.txt,varstor.txttonum.val,0,0
-                            bt4state.val=varstor.txttonum.val
-                            spstr varstor.buff.txt,varstor.com.txt,"\"btn_5\":\"",1
-                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0
-                            covx varstor.com.txt,varstor.txttonum.val,0,0
-                            bt5state.val=varstor.txttonum.val
-                            // Forces page refresh to load new state on the refresh action
-                            page SixBtn
-                        }
                         if(varstor.com.txt=="date")
                         {
                             // {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
-                            spstr varstor.com.txt,varstor.datestor.txt,"\",\"time\"",0 // ","time"
-                            spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
-                            spstr varstor.com.txt,varstor.timestor.txt,"\"}}",0 // "}}
+                            varstor.jrequest.txt="data/date"
+                            click jparser,0
+                            varstor.datestor.txt=varstor.com.txt
+                            varstor.jrequest.txt="data/time"
+                            click jparser,0
+                            varstor.timestor.txt=varstor.com.txt
                         }
                         if(varstor.com.txt=="weather")
                         {
@@ -2261,21 +2807,52 @@ Timer sreadbuffer
                             // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
                             // {"action":"weather","data":{"icon":"22","temp":"233"}}
                             // Icon
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"icon\":\"",1 // {"icon":"
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"temp\":\"",0
+                            varstor.jrequest.txt="data/icon"
+                            click jparser,0
                             covx varstor.com.txt,varstor.weatherstor.val,0,0
                             // Temperature
-                            spstr varstor.buff.txt,varstor.com.txt,"\",\"temp\":\"",1
-                            spstr varstor.com.txt,varstor.tempstor.txt,"\"}}",0
+                            varstor.jrequest.txt="data/temp"
+                            click jparser,0
+                            varstor.tempstor.txt=varstor.com.txt
                             // Directly stores the result of spstr into tempstor
                         }
                         if(varstor.com.txt=="notification")
                         {
                             // Notification Parser {"notification":""}
                             //{"action":"notification","data":{"notification":"02|28|2022"}}
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
-                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0 // "}
+                            varstor.jrequest.txt="notification"
+                            click jparser,0
                             varstor.notification.txt=varstor.com.txt
+                        }
+                        // {"action":"refresh","data":{"btn_0":"0","btn_1":"0","btn_2":"0","btn_3":"0","btn_4":"0","btn_5":"0"}}
+                        if(varstor.com.txt=="refresh")
+                        {
+                            varstor.jrequest.txt="data/btn_0"
+                            click jparser,0
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            bt0state.val=varstor.txttonum.val
+                            varstor.jrequest.txt="data/btn_1"
+                            click jparser,0
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            bt1state.val=varstor.txttonum.val
+                            varstor.jrequest.txt="data/btn_2"
+                            click jparser,0
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            bt2state.val=varstor.txttonum.val
+                            varstor.jrequest.txt="data/btn_3"
+                            click jparser,0
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            bt3state.val=varstor.txttonum.val
+                            varstor.jrequest.txt="data/btn_4"
+                            click jparser,0
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            bt4state.val=varstor.txttonum.val
+                            varstor.jrequest.txt="data/btn_5"
+                            click jparser,0
+                            covx varstor.com.txt,varstor.txttonum.val,0,0
+                            bt5state.val=varstor.txttonum.val
+                            // Forces page refresh to load new state on the refresh action
+                            page SixBtn
                         }
                     }
                 }
@@ -2289,6 +2866,18 @@ Timer sreadbuffer
         
 Timer rgbwhold
     Attributes
+        ID         : 17
+        Scope      : local
+        Period (ms): 400
+        Enabled    : no
+    
+    Events
+        Timer Event
+            varstor.smlastpage.val=1
+            page RGBWSubMenu
+        
+Timer dimhold
+    Attributes
         ID         : 18
         Scope      : local
         Period (ms): 400
@@ -2296,22 +2885,22 @@ Timer rgbwhold
     
     Events
         Timer Event
-            varstor.smlastpage.val=1 // Sets the page to return to once the back button has been pressed
-            page RGBWSubMenu
+            varstor.smlastpage.val=1
+            page DimmerSubMenu
         
-Timer dimhold
+Timer rgbkwhold
     Attributes
-        ID         : 19
+        ID         : 25
         Scope      : local
         Period (ms): 400
         Enabled    : no
     
     Events
         Timer Event
-            varstor.smlastpage.val=1  // Sets the page to return to once the back button has been pressed
-            page DimmerSubMenu
+            varstor.smlastpage.val=1
+            page RGBKWSubMenu
         
-Timer rgbkwhold
+Timer kwhold
     Attributes
         ID         : 26
         Scope      : local
@@ -2320,24 +2909,12 @@ Timer rgbkwhold
     
     Events
         Timer Event
-            varstor.smlastpage.val=1 // Sets the page to return to once the back button has been pressed
-            page RGBKWSubMenu
-        
-Timer kwhold
-    Attributes
-        ID         : 27
-        Scope      : local
-        Period (ms): 400
-        Enabled    : no
-    
-    Events
-        Timer Event
-            varstor.smlastpage.val=1 // Sets the page to return to once the back button has been pressed
+            varstor.smlastpage.val=1
             page KWSubMenu
         
 Timer notifier
     Attributes
-        ID         : 34
+        ID         : 33
         Scope      : local
         Period (ms): 1000
         Enabled    : yes
@@ -2351,19 +2928,19 @@ Timer notifier
         
 Timer rgbhold
     Attributes
-        ID         : 35
+        ID         : 34
         Scope      : local
         Period (ms): 400
         Enabled    : no
     
     Events
         Timer Event
-            varstor.smlastpage.val=1 // Sets the page to return to once the back button has been pressed
+            varstor.smlastpage.val=1
             page RGBSubMenu
         
 Timer pagereader
     Attributes
-        ID         : 37
+        ID         : 36
         Scope      : local
         Period (ms): 50
         Enabled    : no
@@ -2388,52 +2965,91 @@ Timer pagereader
                 // Begin Page Parser
                 // Type
                 varstor.com.txt="0" // Reset value
-                spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
-                spstr varstor.com.txt,varstor.com.txt,"\",\"data\":",0 // ","data":
+                varstor.jrequest.txt="action"
+                click jparser,0
                 if(varstor.com.txt=="page")
                 {
                     // Since we know the first value was successfully gotten we can do the rest safely
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"type\":\"",1 // {"type":"
-                    spstr varstor.com.txt,varstor.com.txt,"\",\"name\":",0 // ","name":
+                    varstor.jrequest.txt="data/type"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pagetype.txt=varstor.com.txt
                     // Position
                     varstor.com.txt="0" // Reset value
-                    spstr varstor.buff.txt,varstor.com.txt,"\"name\":\"",1 // "name":"
-                    spstr varstor.com.txt,varstor.com.txt,"\",\"info\"",0 // ","buttons"
+                    varstor.jrequest.txt="data/name"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pagename.txt=varstor.com.txt
                     // Page Info
                     varstor.com.txt="0" // Reset value
-                    spstr varstor.buff.txt,varstor.com.txt,"\"info\":[",1 // "buttons":[
-                    spstr varstor.com.txt,varstor.com.txt,"]}}",0 // ]}
+                    varstor.jrequest.txt="data/info"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pageinfo.txt=varstor.com.txt
                     varstor.pagereceived.val=1 // Send that a page has been receive
                 }
             }
             // Checks for a timeout
+            // 3 is entering nest
+            // 2 is eniting nest
+            // 1 is continue nesting
+            // 0 is not in nest
             if(varstor.perror.val>=100) // Send error if page request timed out
             {
                 prints "{\"indicator\":\"page_fail\"}",0
                 varstor.perror.val=0 // Resets error for next read
                 // Resets the value if you swipe right
                 // If the current page is greater than 0 and if you swiped right swipedir=1 so you can just subtract by one 0 is left swipe
-                if(varstor.currentpage.val>0&&varstor.swipedir.val==1) // Makes sure the page limit doesn't go above 10 (0 is home)
+                // Standard page handler
+                if(varstor.currentpage.val>0&&varstor.swipedir.val==1&&varstor.isnested.val==0) // Makes sure the page limit doesn't go above 10 (0 is home) Also prevents the current page value from being changed if its nested
                 {
                     varstor.currentpage.val-=1  // Sets page value back to the original (if you tried to go to 2 and it failed you are back at one)
                 }
                 // Resets the value if you swipe left
-                if(varstor.currentpage.val<10&&varstor.swipedir.val==0) // Makes sure the page limit doesn't go above 10 (0 is home)
+                if(varstor.currentpage.val<10&&varstor.swipedir.val==0&&varstor.isnested.val==0) // Makes sure the page limit doesn't go above 10 (0 is home)
                 {
                     varstor.currentpage.val+=1  // Sets page value back to the original (if you tried to go to 2 and it failed you are back at one)
                 }
+                // End Standard Page Handler
+                // Submenu Handler
+                if(varstor.isnested.val==2) // On fail nest exit reset the depth to 0 and set nesting to continue
+                {
+                    varstor.nestdepth.val=0
+                    varstor.isnested.val=1
+                }
+                if(varstor.isnested.val==3) // On fail nest enter reset depth to -1 and turn off nesting
+                {
+                    varstor.nestdepth.val=-1
+                    varstor.isnested.val=0
+                }
+                if(varstor.isnested.val==1&&varstor.nestdepth.val>=0&&varstor.nestdir.val==0) // If nested, the direction is down and we are in a valid nest depth and we fail, add one to the depth. (Resets to the depth before the fail)
+                {
+                    // 0 means we are trying to go down in depth, which means if we failed we have to go up by one
+                    varstor.nestdepth.val++
+                }
+                if(varstor.isnested.val==1&&varstor.nestdepth.val>=0&&varstor.nestdir.val==1) // If nested, the direction is up and we are in a valid nest depth and we fail, subtract one to the depth (Resets to the depth before the fail)
+                {
+                    // 1 means we are trying to go up in depth, which means if we failed we have to go down by one
+                    varstor.nestdepth.val--
+                }
+                // End Submenu Handler
                 pagereader.en=0
                 sreadbuffer.en=1 // Re enables read buffer
             }
             // Checks to see if a page was successfully read
             if(varstor.pagereceived.val==1)
             {
+                // If we succeed reading a page on an exit we can turn off nesting and reset the depth
+                if(varstor.isnested.val==2)
+                {
+                    varstor.isnested.val=0
+                    varstor.nestdepth.val=-1
+                }
+                // If we succeed reading on an enter we can set nesting to the continue value
+                if(varstor.isnested.val==3)
+                {
+                    varstor.isnested.val=1
+                }
                 prints "{\"indicator\":\"page_success\"}",0 // Sends an update that the page was successfully received
                 // Act upon received data
                 varstor.loadedstate.val=0 // Declares that new item states have to be loaded on update
@@ -2447,7 +3063,7 @@ Timer pagereader
         
 TouchCap tc0
     Attributes
-        ID   : 14
+        ID   : 13
         Scope: local
         Value: 0
     
@@ -2487,54 +3103,57 @@ TouchCap tc0
                 // X Section
                 diff=endx-startx
                 // If the difference is high enough we know an x swipe happened and can go further into selecting which side was swiped
-                if(diff>tolerx||diff<tolerxn)
+                if(varstor.isnested.val==0&&pagereader.en==0) // Check for nesting if nested dont allow swiping
                 {
-                    // Right
-                    if(startx>endx)
+                    if(diff>tolerx||diff<tolerxn)
                     {
-                        //prints "swiped right",0
-                        varstor.swipedir.val=1
-                        sreadbuffer.en=0 // Disables the read buffer to let the data only be accessed by this loop
-                        if(varstor.currentpage.val<10) // Makes sure the page limit doesn't go above 10 (0 is home)
+                        // Right
+                        if(startx>endx)
                         {
-                            varstor.currentpage.val+=1
+                            //prints "swiped right",0
+                            varstor.swipedir.val=1
+                            sreadbuffer.en=0 // Disables the read buffer to let the data only be accessed by this loop
+                            if(varstor.currentpage.val<10) // Makes sure the page limit doesn't go above 10 (0 is home)
+                            {
+                                varstor.currentpage.val+=1
+                            }
+                            if(varstor.currentpage.val==0) // Home Check
+                            {
+                                page Home
+                            }
                         }
-                        if(varstor.currentpage.val==0) // Home Check
+                        // Left
+                        if(endx>startx)
                         {
-                            page Home
+                            //prints "swiped left",0
+                            varstor.swipedir.val=0
+                            sreadbuffer.en=0 // Disables the read buffer to let the data only be accessed by this loop
+                            if(varstor.currentpage.val>0) // Makes sure the page limit doesn't go below 0
+                            {
+                                varstor.currentpage.val-=1
+                            }
+                            if(varstor.currentpage.val==0) // Home Check
+                            {
+                                page Home
+                            }
                         }
+                        // Resets touch points
+                        tch0=0
+                        tch1=0
+                        tch2=0
+                        tch3=0
+                        // Copy Here
+                        // Page Handler section
+                        // Page Request
+                        prints "{\"request\":\"page_",0
+                        covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
+                        prints varstor.numtotxt.txt,0
+                        prints "\"}",0
+                        // Enables the page reading timer
+                        varstor.perror.val=0
+                        // Resets the page timeout before being used
+                        pagereader.en=1
                     }
-                    // Left
-                    if(endx>startx)
-                    {
-                        //prints "swiped left",0
-                        varstor.swipedir.val=0
-                        sreadbuffer.en=0 // Disables the read buffer to let the data only be accessed by this loop
-                        if(varstor.currentpage.val>0) // Makes sure the page limit doesn't go below 0
-                        {
-                            varstor.currentpage.val-=1
-                        }
-                        if(varstor.currentpage.val==0) // Home Check
-                        {
-                            page Home
-                        }
-                    }
-                    // Resets touch points
-                    tch0=0
-                    tch1=0
-                    tch2=0
-                    tch3=0
-                    // Copy Here
-                    // Page Handler section
-                    // Page Request
-                    prints "{\"request\":\"page_",0
-                    covx varstor.currentpage.val,varstor.numtotxt.txt,0,0
-                    prints varstor.numtotxt.txt,0
-                    prints "\"}",0
-                    // Enables the page reading timer
-                    varstor.perror.val=0
-                    // Resets the page timeout before being used
-                    pagereader.en=1
                 }
             }
         

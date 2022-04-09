@@ -17,6 +17,74 @@ Page Sleep
             varstor.pagereceived.val=0 // Resets page received check
             prints "{\"indicator\":\"sleep\"}",0
         
+Hotspot jparser
+    Attributes
+        ID                                  : 3
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+    
+    Events
+        Touch Release Event
+            varstor.jdepth.val=0
+            varstor.jbuffer1.txt=""
+            varstor.jbuffer2.txt=""
+            varstor.jbuffer3.txt=""
+            varstor.com.txt=""
+            strlen varstor.jrequest.txt,varstor.jlength.val
+            while(varstor.jlength.val>0)
+            {
+                if(varstor.jdepth.val<1)
+                {
+                    spstr varstor.jrequest.txt,varstor.jbuffer1.txt,"/",0
+                    varstor.jbuffer2.txt=varstor.jbuffer1.txt
+                    //prints varstor.jbuffer1.txt,0
+                    varstor.jbuffer1.txt="\""
+                    varstor.jbuffer1.txt+=varstor.jbuffer2.txt
+                    varstor.jbuffer1.txt+="\":"
+                    //prints varstor.jbuffer1.txt,0
+                    //prints " ",0
+                    varstor.jdepth.val++
+                    spstr varstor.buff.txt,varstor.jbuffer3.txt,varstor.jbuffer1.txt,1
+                    //prints varstor.jbuffer3.txt,0
+                    varstor.jbuffer1.txt=varstor.jbuffer2.txt
+                }else
+                {
+                    spstr varstor.jrequest.txt,varstor.jbuffer1.txt,"/",varstor.jdepth.val
+                    strlen varstor.jbuffer1.txt,varstor.jlength.val
+                    varstor.jdepth.val++
+                    if(varstor.jlength.val<1) // If we get here we know that we have selected our value so we can just copy it over
+                    {
+                        substr varstor.jbuffer3.txt,varstor.jbuffer1.txt,0,1
+                        if(varstor.jbuffer1.txt=="[") // Array
+                        {
+                            spstr varstor.jbuffer3.txt,varstor.com.txt,"[",1
+                            spstr varstor.com.txt,varstor.com.txt,"]",0
+                        }else
+                        { // Not an array
+                        spstr varstor.jbuffer3.txt,varstor.com.txt,"\"",1
+                        spstr varstor.com.txt,varstor.com.txt,"\"",0
+                    }
+                }
+                varstor.jbuffer2.txt=varstor.jbuffer1.txt
+                varstor.jbuffer1.txt="\""
+                varstor.jbuffer1.txt+=varstor.jbuffer2.txt
+                varstor.jbuffer1.txt+="\":"
+                spstr varstor.jbuffer3.txt,varstor.jbuffer3.txt,varstor.jbuffer1.txt,1
+                varstor.jbuffer1.txt=varstor.jbuffer2.txt
+            }
+            strlen varstor.com.txt,varstor.jlength.val
+            if(varstor.jlength.val==0)
+            {
+                strlen varstor.jbuffer1.txt,varstor.jlength.val
+            }else
+            {
+                varstor.jlength.val=0
+            }
+            doevents
+            }
+        
 Timer sreadbuffer
     Attributes
         ID         : 2
@@ -48,8 +116,8 @@ Timer sreadbuffer
                     code_c
                     //
                     // Action  Parser
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"",0 // "}
+                    varstor.jrequest.txt="action"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val
                     if(varstor.txttonum.val>1)
                     {
@@ -60,8 +128,8 @@ Timer sreadbuffer
                         }
                         if(varstor.com.txt=="dim")
                         {
-                            spstr varstor.buff.txt,varstor.com.txt,"\",\"value\":\"",1 // ","value":"
-                            spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                            varstor.jrequest.txt="value"
+                            click jparser,0
                             covx varstor.com.txt,varstor.txttonum.val,0,0
                             varstor.brightness.val=varstor.txttonum.val
                             dim=varstor.brightness.val
@@ -74,10 +142,12 @@ Timer sreadbuffer
                         if(varstor.com.txt=="date")
                         {
                             // {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
-                            spstr varstor.com.txt,varstor.datestor.txt,"\",\"time\"",0 // ","time"
-                            spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
-                            spstr varstor.com.txt,varstor.timestor.txt,"\"}}",0 // "}
+                            varstor.jrequest.txt="data/date"
+                            click jparser,0
+                            varstor.datestor.txt=varstor.com.txt
+                            varstor.jrequest.txt="data/time"
+                            click jparser,0
+                            varstor.timestor.txt=varstor.com.txt
                         }
                         if(varstor.com.txt=="weather")
                         {
@@ -85,20 +155,21 @@ Timer sreadbuffer
                             // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
                             // {"action":"weather","data":{"icon":"22","temp":"233"}}
                             // Icon
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"icon\":\"",1 // {"icon":"
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"temp\":\"",0
+                            varstor.jrequest.txt="data/icon"
+                            click jparser,0
                             covx varstor.com.txt,varstor.weatherstor.val,0,0
                             // Temperature
-                            spstr varstor.buff.txt,varstor.com.txt,"\",\"temp\":\"",1
-                            spstr varstor.com.txt,varstor.tempstor.txt,"\"}}",0
+                            varstor.jrequest.txt="data/temp"
+                            click jparser,0
+                            varstor.tempstor.txt=varstor.com.txt
                             // Directly stores the result of spstr into tempstor
                         }
                         if(varstor.com.txt=="notification")
                         {
                             // Notification Parser {"notification":""}
                             //{"action":"notification","data":{"notification":"02|28|2022"}}
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
-                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0 // "}
+                            varstor.jrequest.txt="notification"
+                            click jparser,0
                             varstor.notification.txt=varstor.com.txt
                         }
                     }

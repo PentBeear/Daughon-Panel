@@ -15,6 +15,8 @@ Page Home
         Preinitialize Event
             // dims the screen to the set brightness and enables the dimming of the screen after 15 seconds and turning off after
             // another 15
+            varstor.isnested.val=0
+            varstor.nestdepth.val=-1
             prints "{\"indicator\":\"home\"}",0
             dim=varstor.brightness.val
             varstor.serror.val=0
@@ -185,6 +187,74 @@ Slider dimslider
             varstor.brightness.val=dimslider.val
             dim=varstor.brightness.val
         
+Hotspot jparser
+    Attributes
+        ID                                  : 20
+        Scope                               : local
+        Dragging                            : 0
+        Disable release event after dragging: 0
+        Send Component ID                   : disabled
+    
+    Events
+        Touch Release Event
+            varstor.jdepth.val=0
+            varstor.jbuffer1.txt=""
+            varstor.jbuffer2.txt=""
+            varstor.jbuffer3.txt=""
+            varstor.com.txt=""
+            strlen varstor.jrequest.txt,varstor.jlength.val
+            while(varstor.jlength.val>0)
+            {
+                if(varstor.jdepth.val<1)
+                {
+                    spstr varstor.jrequest.txt,varstor.jbuffer1.txt,"/",0
+                    varstor.jbuffer2.txt=varstor.jbuffer1.txt
+                    //prints varstor.jbuffer1.txt,0
+                    varstor.jbuffer1.txt="\""
+                    varstor.jbuffer1.txt+=varstor.jbuffer2.txt
+                    varstor.jbuffer1.txt+="\":"
+                    //prints varstor.jbuffer1.txt,0
+                    //prints " ",0
+                    varstor.jdepth.val++
+                    spstr varstor.buff.txt,varstor.jbuffer3.txt,varstor.jbuffer1.txt,1
+                    //prints varstor.jbuffer3.txt,0
+                    varstor.jbuffer1.txt=varstor.jbuffer2.txt
+                }else
+                {
+                    spstr varstor.jrequest.txt,varstor.jbuffer1.txt,"/",varstor.jdepth.val
+                    strlen varstor.jbuffer1.txt,varstor.jlength.val
+                    varstor.jdepth.val++
+                    if(varstor.jlength.val<1) // If we get here we know that we have selected our value so we can just copy it over
+                    {
+                        substr varstor.jbuffer3.txt,varstor.jbuffer1.txt,0,1
+                        if(varstor.jbuffer1.txt=="[") // Array
+                        {
+                            spstr varstor.jbuffer3.txt,varstor.com.txt,"[",1
+                            spstr varstor.com.txt,varstor.com.txt,"]",0
+                        }else
+                        { // Not an array
+                        spstr varstor.jbuffer3.txt,varstor.com.txt,"\"",1
+                        spstr varstor.com.txt,varstor.com.txt,"\"",0
+                    }
+                }
+                varstor.jbuffer2.txt=varstor.jbuffer1.txt
+                varstor.jbuffer1.txt="\""
+                varstor.jbuffer1.txt+=varstor.jbuffer2.txt
+                varstor.jbuffer1.txt+="\":"
+                spstr varstor.jbuffer3.txt,varstor.jbuffer3.txt,varstor.jbuffer1.txt,1
+                varstor.jbuffer1.txt=varstor.jbuffer2.txt
+            }
+            strlen varstor.com.txt,varstor.jlength.val
+            if(varstor.jlength.val==0)
+            {
+                strlen varstor.jbuffer1.txt,varstor.jlength.val
+            }else
+            {
+                varstor.jlength.val=0
+            }
+            doevents
+            }
+        
 Timer dimtimer
     Attributes
         ID         : 8
@@ -257,8 +327,8 @@ Timer sreadbuffer
                     code_c
                     //
                     // Action  Parser
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
-                    spstr varstor.com.txt,varstor.com.txt,"\"",0 // "}
+                    varstor.jrequest.txt="action"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val
                     if(varstor.txttonum.val>1)
                     {
@@ -269,8 +339,8 @@ Timer sreadbuffer
                         }
                         if(varstor.com.txt=="dim")
                         {
-                            spstr varstor.buff.txt,varstor.com.txt,"\",\"value\":\"",1 // ","value":"
-                            spstr varstor.com.txt,varstor.com.txt,"\"}",0 // "}
+                            varstor.jrequest.txt="value"
+                            click jparser,0
                             covx varstor.com.txt,varstor.txttonum.val,0,0
                             varstor.brightness.val=varstor.txttonum.val
                             dim=varstor.brightness.val
@@ -283,11 +353,13 @@ Timer sreadbuffer
                         if(varstor.com.txt=="date")
                         {
                             // {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"date\":\"",1  // {"date":"
-                            spstr varstor.com.txt,varstor.datestor.txt,"\",\"time\"",0 // ","time"
+                            varstor.jrequest.txt="data/date"
+                            click jparser,0
+                            varstor.datestor.txt=varstor.com.txt
                             date.txt=varstor.datestor.txt
-                            spstr varstor.buff.txt,varstor.com.txt,"\"time\":\"",1 // ","time":"
-                            spstr varstor.com.txt,varstor.timestor.txt,"\"}}",0 // "}
+                            varstor.jrequest.txt="data/time"
+                            click jparser,0
+                            varstor.timestor.txt=varstor.com.txt
                             time.txt=varstor.timestor.txt
                         }
                         if(varstor.com.txt=="weather")
@@ -296,12 +368,13 @@ Timer sreadbuffer
                             // Valid Formats: Uses a single parser for both temp and weather so only one format may be used
                             // {"action":"weather","data":{"icon":"22","temp":"233"}}
                             // Icon
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"icon\":\"",1 // {"icon":"
-                            spstr varstor.com.txt,varstor.com.txt,"\",\"temp\":\"",0
+                            varstor.jrequest.txt="data/icon"
+                            click jparser,0
                             covx varstor.com.txt,varstor.weatherstor.val,0,0
                             // Temperature
-                            spstr varstor.buff.txt,varstor.com.txt,"\",\"temp\":\"",1
-                            spstr varstor.com.txt,varstor.tempstor.txt,"\"}}",0
+                            varstor.jrequest.txt="data/temp"
+                            click jparser,0
+                            varstor.tempstor.txt=varstor.com.txt
                             temp.txt=varstor.tempstor.txt
                             // Directly stores the result of spstr into tempstor
                             if(varstor.weatherstor.val==0) // Sunny
@@ -341,8 +414,8 @@ Timer sreadbuffer
                         {
                             // Notification Parser {"notification":""}
                             //{"action":"notification","data":{"notification":"02|28|2022"}}
-                            spstr varstor.buff.txt,varstor.com.txt,"{\"notification\":\"",1 // {"notification":"
-                            spstr varstor.com.txt,varstor.com.txt,"\"}}",0 // "}
+                            varstor.jrequest.txt="notification"
+                            click jparser,0
                             varstor.notification.txt=varstor.com.txt
                         }
                     }
@@ -397,52 +470,91 @@ Timer pagereader
                 // Begin Page Parser
                 // Type
                 varstor.com.txt="0" // Reset value
-                spstr varstor.buff.txt,varstor.com.txt,"{\"action\":\"",1 // {"action":"
-                spstr varstor.com.txt,varstor.com.txt,"\",\"data\":",0 // ","data":
+                varstor.jrequest.txt="action"
+                click jparser,0
                 if(varstor.com.txt=="page")
                 {
                     // Since we know the first value was successfully gotten we can do the rest safely
-                    spstr varstor.buff.txt,varstor.com.txt,"{\"type\":\"",1 // {"type":"
-                    spstr varstor.com.txt,varstor.com.txt,"\",\"name\":",0 // ","name":
+                    varstor.jrequest.txt="data/type"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pagetype.txt=varstor.com.txt
                     // Position
                     varstor.com.txt="0" // Reset value
-                    spstr varstor.buff.txt,varstor.com.txt,"\"name\":\"",1 // "name":"
-                    spstr varstor.com.txt,varstor.com.txt,"\",\"info\"",0 // ","buttons"
+                    varstor.jrequest.txt="data/name"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pagename.txt=varstor.com.txt
                     // Page Info
                     varstor.com.txt="0" // Reset value
-                    spstr varstor.buff.txt,varstor.com.txt,"\"info\":[",1 // "buttons":[
-                    spstr varstor.com.txt,varstor.com.txt,"]}}",0 // ]}
+                    varstor.jrequest.txt="data/info"
+                    click jparser,0
                     strlen varstor.com.txt,varstor.txttonum.val //  {"date":"02|28|2022","time":"50|20"}
                     varstor.pageinfo.txt=varstor.com.txt
                     varstor.pagereceived.val=1 // Send that a page has been receive
                 }
             }
             // Checks for a timeout
+            // 3 is entering nest
+            // 2 is eniting nest
+            // 1 is continue nesting
+            // 0 is not in nest
             if(varstor.perror.val>=100) // Send error if page request timed out
             {
                 prints "{\"indicator\":\"page_fail\"}",0
                 varstor.perror.val=0 // Resets error for next read
                 // Resets the value if you swipe right
                 // If the current page is greater than 0 and if you swiped right swipedir=1 so you can just subtract by one 0 is left swipe
-                if(varstor.currentpage.val>0&&varstor.swipedir.val==1) // Makes sure the page limit doesn't go above 10 (0 is home)
+                // Standard page handler
+                if(varstor.currentpage.val>0&&varstor.swipedir.val==1&&varstor.isnested.val==0) // Makes sure the page limit doesn't go above 10 (0 is home) Also prevents the current page value from being changed if its nested
                 {
                     varstor.currentpage.val-=1  // Sets page value back to the original (if you tried to go to 2 and it failed you are back at one)
                 }
                 // Resets the value if you swipe left
-                if(varstor.currentpage.val<10&&varstor.swipedir.val==0) // Makes sure the page limit doesn't go above 10 (0 is home)
+                if(varstor.currentpage.val<10&&varstor.swipedir.val==0&&varstor.isnested.val==0) // Makes sure the page limit doesn't go above 10 (0 is home)
                 {
                     varstor.currentpage.val+=1  // Sets page value back to the original (if you tried to go to 2 and it failed you are back at one)
                 }
+                // End Standard Page Handler
+                // Submenu Handler
+                if(varstor.isnested.val==2) // On fail nest exit reset the depth to 0 and set nesting to continue
+                {
+                    varstor.nestdepth.val=0
+                    varstor.isnested.val=1
+                }
+                if(varstor.isnested.val==3) // On fail nest enter reset depth to -1 and turn off nesting
+                {
+                    varstor.nestdepth.val=-1
+                    varstor.isnested.val=0
+                }
+                if(varstor.isnested.val==1&&varstor.nestdepth.val>=0&&varstor.nestdir.val==0) // If nested, the direction is down and we are in a valid nest depth and we fail, add one to the depth. (Resets to the depth before the fail)
+                {
+                    // 0 means we are trying to go down in depth, which means if we failed we have to go up by one
+                    varstor.nestdepth.val++
+                }
+                if(varstor.isnested.val==1&&varstor.nestdepth.val>=0&&varstor.nestdir.val==1) // If nested, the direction is up and we are in a valid nest depth and we fail, subtract one to the depth (Resets to the depth before the fail)
+                {
+                    // 1 means we are trying to go up in depth, which means if we failed we have to go down by one
+                    varstor.nestdepth.val--
+                }
+                // End Submenu Handler
                 pagereader.en=0
                 sreadbuffer.en=1 // Re enables read buffer
             }
             // Checks to see if a page was successfully read
             if(varstor.pagereceived.val==1)
             {
+                // If we succeed reading a page on an exit we can turn off nesting and reset the depth
+                if(varstor.isnested.val==2)
+                {
+                    varstor.isnested.val=0
+                    varstor.nestdepth.val=-1
+                }
+                // If we succeed reading on an enter we can set nesting to the continue value
+                if(varstor.isnested.val==3)
+                {
+                    varstor.isnested.val=1
+                }
                 prints "{\"indicator\":\"page_success\"}",0 // Sends an update that the page was successfully received
                 // Act upon received data
                 varstor.loadedstate.val=0 // Declares that new item states have to be loaded on update
@@ -509,7 +621,7 @@ TouchCap tc0
                 // X Section
                 diff=endx-startx
                 // If the difference is high enough we know an x swipe happened and can go further into selecting which side was swiped
-                if(topmenu.val==0) // Check if the submenu is opened
+                if(topmenu.val==0&&pagereader.en==0) // Check if the submenu is opened or if a page is already being requested
                 {
                     if(diff>tolerx||diff<tolerxn)
                     {

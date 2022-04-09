@@ -27,8 +27,8 @@ Variable (string) com
     Attributes
         ID            : 2
         Scope         : global
-        Text          : newtxt
-        Max. Text Size: 350
+        Text          : 
+        Max. Text Size: 250
     
 Variable (int32) weatherstor
     Attributes
@@ -176,4 +176,62 @@ Variable (int32) perror
         ID   : 25
         Scope: global
         Value: 0
+    
+Variable (int32) isnested
+    Attributes
+        ID   : 26
+        Scope: global
+        Value: 4294967295
+    
+Variable (int32) nestdepth
+    Attributes
+        ID   : 27
+        Scope: global
+        Value: 0
+    
+Variable (int32) nestdir
+    Attributes
+        ID   : 28
+        Scope: global
+        Value: 0
+    
+Variable (string) jbuffer1
+    Attributes
+        ID            : 29
+        Scope         : global
+        Text          : 
+        Max. Text Size: 100
+    
+Variable (string) jbuffer2
+    Attributes
+        ID            : 30
+        Scope         : global
+        Text          : 
+        Max. Text Size: 100
+    
+Variable (int32) jdepth
+    Attributes
+        ID   : 31
+        Scope: global
+        Value: 0
+    
+Variable (string) jbuffer3
+    Attributes
+        ID            : 32
+        Scope         : global
+        Text          : 
+        Max. Text Size: 250
+    
+Variable (int32) jlength
+    Attributes
+        ID   : 33
+        Scope: global
+        Value: 0
+    
+Variable (string) jrequest
+    Attributes
+        ID            : 34
+        Scope         : global
+        Text          : 
+        Max. Text Size: 20
     

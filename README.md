@@ -24,7 +24,10 @@ TBD
 - ###### Music player page
 - ###### Revamp lighting submenus to have more accurate sliders
 - ###### Revamp home screen to be more beautiful
-- ###### Linear item page
+
+
+## Finished Plans
+- [x] ###### Linear item page
 
 
 

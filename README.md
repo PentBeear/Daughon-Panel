@@ -27,7 +27,7 @@ TBD
 
 
 ## Finished Plans
-- ###### [x] Linear item page
+- [x] Linear item page
 
 
 

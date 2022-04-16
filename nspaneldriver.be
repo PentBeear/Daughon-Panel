@@ -215,58 +215,58 @@ class Nextion : Driver
     def set_weather()
         import json
         var weather_icon = {
-        "": 7,      # Unknown             
-        "113": 0,    # Sunny      
-        "116": 1,    # PartlyCloudy   
-        "119": 2,    # Cloudy             
-        "122": 3,   # VeryCloudy           
-        "143": 2,   # Fog                 
-        "176": 4,   # LightShowers     
-        "179": 4,   # LightSleetShowers 
-        "182": 4,   # LightSleet        
-        "185": 4,   # LightSleet        
-        "200": 4,   # ThunderyShowers  
-        "227": 6,   # LightSnow  
-        "230": 6,   # HeavySnow        
-        "248": 2,   # Fog                 
-        "260": 2,   # Fog                 
-        "263": 4,   # LightShowers     
-        "266": 4,   # LightRain      
-        "281": 4,   # LightSleet        
-        "284": 4,   # LightSleet        
-        "293": 4,   # LightRain      
-        "296": 4,   # LightRain      
-        "299": 5,   # HeavyShowers      
-        "302": 5,   # HeavyRain        
-        "305": 5,   # HeavyShowers      
-        "308": 5,   # HeavyRain        
-        "311": 4,   # LightSleet        
-        "314": 4,   # LightSleet        
-        "317": 4,   # LightSleet        
-        "320": 6,   # LightSnow  
-        "323": 6,   # LightSnowShowers 
-        "326": 6,   # LightSnowShowers 
-        "329": 6,   # HeavySnow        
-        "332": 6,   # HeavySnow        
-        "335": 6,   # HeavySnowShowers   
-        "338": 6,   # HeavySnow        
-        "350": 4,   # LightSleet        
-        "353": 4,   # LightSleet        
-        "356": 5,   # HeavyShowers      
-        "359": 5,   # HeavyRain        
-        "362": 4,   # LightSleetShowers 
-        "365": 4,   # LightSleetShowers 
-        "368": 4,   # LightSnowShowers 
-        "371": 6,   # HeavySnowShowers   
-        "374": 4,   # LightSleetShowers 
-        "377": 4,   # LightSleet        
-        "386": 4,   # ThunderyShowers  
-        "389": 5,   # ThunderyHeavyRain  
-        "392": 6,   # ThunderySnowShowers
-        "395": 6,   # HeavySnowShowers   
+        "": "",      # Unknown             
+        "113": "",    # Sunny      
+        "116": "",    # PartlyCloudy   
+        "119": "",    # Cloudy             
+        "122": "",   # VeryCloudy           
+        "143": "",   # Fog                 
+        "176": "",   # LightShowers     
+        "179": "",   # LightSleetShowers 
+        "182": "",   # LightSleet        
+        "185": "",   # LightSleet        
+        "200": "",   # ThunderyShowers  
+        "227": "",   # LightSnow  
+        "230": "",   # HeavySnow        
+        "248": "",   # Fog                 
+        "260": "",   # Fog                 
+        "263": "",   # LightShowers     
+        "266": "",   # LightRain      
+        "281": '',   # LightSleet        
+        "284": "",   # LightSleet        
+        "293": "",   # LightRain      
+        "296": "",   # LightRain      
+        "299": "",   # HeavyShowers      
+        "302": "",   # HeavyRain        
+        "305": "",   # HeavyShowers      
+        "308": "",   # HeavyRain        
+        "311": "",   # LightSleet        
+        "314": "",   # LightSleet        
+        "317": "",   # LightSleet        
+        "320": "",   # LightSnow  
+        "323": "",   # LightSnowShowers 
+        "326": "",   # LightSnowShowers 
+        "329": "",   # HeavySnow        
+        "332": "",   # HeavySnow        
+        "335": "",   # HeavySnowShowers   
+        "338": "",   # HeavySnow        
+        "350": "",   # LightSleet        
+        "353": "",   # LightSleet        
+        "356": "",   # HeavyShowers      
+        "359": "",   # HeavyRain        
+        "362": "",   # LightSleetShowers 
+        "365": "",   # LightSleetShowers 
+        "368": "",   # LightSnowShowers 
+        "371": "",   # HeavySnowShowers   
+        "374": "",   # LightSleetShowers 
+        "377": "",   # LightSleet        
+        "386": "",   # ThunderyShowers  
+        "389": "",   # ThunderyHeavyRain  
+        "392": "",   # ThunderySnowShowers
+        "395": "",   # HeavySnowShowers   
         }   
         var cl = webclient()
-        var url = "http://wttr.in/" + "code here" + '?format=j2' 
+        var url = "http://wttr.in/" + "" + '?format=j2'
         cl.set_useragent("curl/7.72.0")      
         cl.begin(url)
         if cl.GET() == "200" || cl.GET() == 200
@@ -274,7 +274,8 @@ class Nextion : Driver
             var temp = b['current_condition'][0]['temp_F']
             var tmin = b['weather'][0]['mintempF']
             var tmax = b['weather'][0]['maxtempF']
-            var wttr = '{"weather":"' + temp + 'F' + '","' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + '"}'
+            var wttr = '{"action":"weather","data":{"icon":"' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + '","temp":"' + temp + 'F' + '"}}'
+            # {"action":"weather","data":{"icon":"hello","temp":"50"}}
             #var wttr = '{"HMI_weather":' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + ',"HMI_outdoorTemp":{"current":' + temp + ',"range":" ' + tmin + ', ' + tmax + '"}}'
             self.sendnx(wttr)
             log('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'])
@@ -290,24 +291,24 @@ class Nextion : Driver
         var now = tasmota.rtc()
         var time_raw = now['local']
         var nsp_time = tasmota.time_dump(time_raw)  
-
+        # {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
         if nsp_time['min'] <= 9 # Adds a 0 to pad the time if the minute is less than 9
             if nsp_time['hour'] > 12 # Converts to 12 hour time formatting instead of 24
-                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":0" + str(nsp_time['min']) + '"}'
+                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":0" + str(nsp_time['min']) + '"}}'
                 self.sendnx(date_payload)
                 log('NSP: Time update for NSP ' + date_payload)
             else
-                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}'
+                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}}'
                 self.sendnx(date_payload)
                 log('NSP: Time update for NSP ' + date_payload)
             end
         else 
             if nsp_time['hour'] > 12
-                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":" + str(nsp_time['min']) + '"}'
+                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":" + str(nsp_time['min']) + '"}}'
                 self.sendnx(date_payload)
                 log('NSP: Time update for NSP ' + date_payload)
             else
-                var date_payload = '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}'
+                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}}'
                 self.sendnx(date_payload)
                 log('NSP: Time update for NSP ' + date_payload)
             end

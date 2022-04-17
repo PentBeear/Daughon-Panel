@@ -1,24 +1,18 @@
-//{"fan":"toggle"} 
+// Gets the request
 itemState = this.event.toString();
 itemState = itemState.substr(itemState.indexOf("{"),itemState.length());
 var jsonObject=JSON.parse(itemState);    
-var HSBType = Java.type('org.openhab.core.library.types.HSBType');
-// The item that stores the last submenu accesses
+
+// Gets the submenu list
 var submenuList = items.getItem('BedroomNSPanel_SubmenuList').state.toString()
 var submenuJson = ""
 if (submenuList.includes("{")){
   submenuJson = JSON.parse(submenuList.toString());
 }
 
-// Converts on and off to 0 and 1
-function convertState(state){
-  if (state.toLowerCase()=="on"){
-    return "1";
-  } else {
-    return "0";
-  }
-}
+var HSBType = Java.type('org.openhab.core.library.types.HSBType');
 
+// Page List
 var pageJSON = `{ 
 	"pages": [{ 
         "default":"home", 
@@ -58,10 +52,21 @@ var pageJSON = `{
 
 var pageJSONParsed = JSON.parse(pageJSON);
 
+// Converts on and off to 0 and 1
+function convertState(state){
+  if (state.toLowerCase()=="on"){
+    return "1";
+  } else {
+    return "0";
+  }
+}
+
+// Resets the nesting helper
 function nestReset(){
   items.getItem('BedroomNSPanel_SubmenuList').sendCommand("");
 }
 
+// Adds a depth to the nesting helper
 function nestAddition(){
   if (!(submenuList.includes("{"))){ // If submenulist does not contain a { begin the json
       submenuJson = JSON.parse("{}");
@@ -73,6 +78,7 @@ function nestAddition(){
    }
 }
 
+// Subtracts a depth to the nesting helper
 function nestSubtraction(){
   if (!(submenuList.includes("{"))){ // If submenulist does not contain a { begin the json
       nestReset() // If we subtract and theres no json just reset it
@@ -82,55 +88,60 @@ function nestSubtraction(){
    }
 }
 
+// Sends a page stored from pageJSON 
 function sendPage(pageNum,btn,depth,force){
   console.log("Sending Page based on: " + "page:" + pageNum + " btn:" + btn + " depth:" + depth + " force:" + force)
-  if(depth<0){
-    actions.get("mqtt", "mqtt:broker:x").publishMQTT("cmnd/tasmota_bedroom_nspanel/nextion", eval("`" + pageJSONParsed["pages"][pageNum]["default"].replaceAll("-","\"") + "`") ,false); 
+  if(force==true)
+  {
+    if(depth<0){ // Make this do the force_disp instead of page action
+      actions.get("mqtt", "mqtt:broker:x").publishMQTT("cmnd/tasmota_bedroom_nspanel/nextion", eval("`" + pageJSONParsed["pages"][pageNum]["default"].replaceAll("-","\"") + "`") ,false); 
+    } else {
+      // Selects page, btn number, and depth
+      actions.get("mqtt", "mqtt:broker:x").publishMQTT("cmnd/tasmota_bedroom_nspanel/nextion", eval("`" + pageJSONParsed["pages"][pageNum]["btns"][btn]["depths"][depth].replaceAll("-","\"") + "`") ,false);  
+    }  
   } else {
-    // Selects page, btn number, and depth
-    actions.get("mqtt", "mqtt:broker:x").publishMQTT("cmnd/tasmota_bedroom_nspanel/nextion", eval("`" + pageJSONParsed["pages"][pageNum]["btns"][btn]["depths"][depth].replaceAll("-","\"") + "`") ,false);  
+    if(depth<0){
+      actions.get("mqtt", "mqtt:broker:x").publishMQTT("cmnd/tasmota_bedroom_nspanel/nextion", eval("`" + pageJSONParsed["pages"][pageNum]["default"].replaceAll("-","\"") + "`") ,false); 
+    } else {
+      // Selects page, btn number, and depth
+      actions.get("mqtt", "mqtt:broker:x").publishMQTT("cmnd/tasmota_bedroom_nspanel/nextion", eval("`" + pageJSONParsed["pages"][pageNum]["btns"][btn]["depths"][depth].replaceAll("-","\"") + "`") ,false);  
+    }
   }
+  
 }
 
+// Reads the page requests and chooses which page to send
 function pageHandler(){
   var nest = false;
   var back = false
   console.log("Request: " + JSON.stringify(jsonObject));
-  if(jsonObject["request"] == "page"){ // On regular page so reset nesting
+  if(jsonObject["request"] == "page"){ // Regular page request
     console.log("Requested regular page")
     nestReset();
     nest=false;
-  } else if(jsonObject["update"] == "btn" && jsonObject["data"]["btn"] == "server"){ // Back btn is selected so we know to subtract 
+  } else if(jsonObject["update"] == "btn" && jsonObject["data"]["btn"] == "server" && parseInt(jsonObject["data"]["depth"]) > -1){ // Nesting back request
     console.log("Requested nest back")
     nestSubtraction();
     nest=true;
     back=true;
-  } else if (jsonObject["update"] == "btn" && parseInt(jsonObject["data"]["depth"]) > -1){  // Depth is greater than -1 so we know we are adding to the nest
+  } else if (jsonObject["update"] == "btn" && jsonObject["data"]["btn"] != "server" && parseInt(jsonObject["data"]["depth"]) > -1){  // Nesting up request
     console.log("Requested nest up")
     nestAddition();
     nest=true;
   }
-  // Nest portion we know we have depth here
-  if(nest==true){
-    if(back==true){
-      // When we want to go back we go to the submenu json storage, select our depth, and then parse the result
-      // Then we can 'replay' the page
+  if(nest==true){ // If nesting use depth
+    if(back==true){ // If going back use the submenuJSON to replay stored nests
       console.log("Previous Nest: " + submenuJson[jsonObject["data"]["depth"]].replaceAll("\\",""))
       var previousSubmenu = JSON.parse(submenuJson[jsonObject["data"]["depth"]].replaceAll("\\","")); 
       sendPage(parseInt(previousSubmenu["data"]["page"]),parseInt(previousSubmenu["data"]["btn"]),parseInt(previousSubmenu["data"]["depth"]),false);
-    } else {
+    } else { // Just use depth to specify what nest to use in sendPage
       sendPage(parseInt(jsonObject["data"]["page"]),parseInt(jsonObject["data"]["btn"]),parseInt(jsonObject["data"]["depth"]),false);
     }
-    
-  } else { // Regular page handling
+  } else { // Just send a regular page
     sendPage(parseInt(jsonObject["data"]["page"]),-1,-1,false);
   }
-  
-  
-  
 }
 
-// This will all be split into functions later
 
 // {"update":"btn","data":{"btn":"0","action":"nesting","page":"1","depth":"0"}}
 // Handles page requests (Note how its else if still so the script doesn't have to search for every possibility)
@@ -155,7 +166,7 @@ if (jsonObject["request"] == "page" || jsonObject["update"] == "btn" && jsonObje
       break;
     default:
   } 
-} else if(jsonObject["update"] == "btn"){ // Handles user input from a page
+} else if(jsonObject["update"] == "btn"){ // Handles user input from a page TODO: add callback system for this
     switch (jsonObject["data"]["page"]){
       case "1": // Page one page  
         if(jsonObject["data"]["depth"] == "-1"){

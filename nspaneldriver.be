@@ -1,6 +1,11 @@
+# Sonoff NSPanel Tasmota Lovelace UI Berry Driver | code by PentBeear
+# based on;
+# Sonoff NSPanel Tasmota Lovelace UI Berry Driver | code by joBr99
+# based on;
 # Sonoff NSPanel Tasmota (Nextion with Flashing) driver | code by peepshow-21
 # based on;
 # Sonoff NSPanel Tasmota driver v0.47 | code by blakadder and s-hadinger
+# What a large chain of people using each others code :)
 
 # Example Flash
 # FlashNextion http://172.17.20.5:8080/static/chunks/nxpanel.tft
@@ -8,23 +13,26 @@
 
 class Nextion : Driver
 
-    static VERSION = "1.1.3"
+    static VERSION = "1.1.4"
     static header = bytes().fromstring("PS")
 
     static flash_block_size = 4096
 
+    var updates
     var flash_mode
     var flash_size
     var flash_written
     var flash_buff
     var flash_offset
     var awaiting_offset
+    var flash_time
     var tcp
     var ser
     var last_per
     var auto_update_flag
+    var url
 
-    def split_msg(b)   
+    def split_msg(b) # Splits at 0x55
         import string
         var ret = []
         var i = 0
@@ -46,7 +54,7 @@ class Nextion : Driver
         return ret
     end
 
-    def crc16(data, poly)
+    def crc16(data, poly) # just a hash
       if !poly  poly = 0xA001 end
       # CRC-16 MODBUS HASHING ALGORITHM
       var crc = 0xFFFF
@@ -63,7 +71,7 @@ class Nextion : Driver
       return crc
     end
 
-    def encode(payload)
+    def encode(payload) # Adds header so panel can know what to expect of course
       var b = bytes()
       b += self.header
       var nsp_type = 0 # not used
@@ -92,22 +100,21 @@ class Nextion : Driver
         import string
         var payload_bin = self.encodenx(payload)
         self.ser.write(payload_bin)
-        #log(string.format("NXP: Nextion command sent = %s",str(payload_bin)))       
+        #log(string.format("NSP: Nextion command sent = %s",str(payload_bin)))       
     end
 
     def send(payload)
         var payload_bin = self.encode(payload)
         if self.flash_mode==1
-            log("NXP: skipped command becuase still flashing", 3)
+            log("NSP: skipped command because still flashing", 3)
         else 
             self.ser.write(payload_bin)
-            log("NXP: payload sent = " + str(payload_bin), 3)
+            log("NSP: payload sent = " + str(payload_bin), 3)
         end
     end
 
     def screeninit()
-        log("NXP: Screen Initialized", 1) 
-        self.sendnx("berry.txt=\""+self.VERSION+"\"")
+        log("NSP: Screen Initialized", 1) 
         self.sendnx("recmod=1")
     end
 
@@ -139,44 +146,50 @@ class Nextion : Driver
         end
         if size(to_write)>0
             self.flash_written += size(to_write)
-            if self.flash_offset==0 || self.flash_written>self.flash_offset
-                self.ser.write(to_write)
-                self.flash_offset = 0
-            else
-                tasmota.set_timer(10,/->self.write_block())
-            end
+            self.ser.write(to_write)
         end
         log("FLH: Total "+str(self.flash_written),3)
         if (self.flash_written==self.flash_size)
-            log("FLH: Flashing complete")
+            log("FLH: Flashing complete - Time elapsed: %d", (tasmota.millis()-self.flash_time)/1000)
+            self.ser = nil
             self.flash_mode = 0
+            tasmota.gc()
+			self.ser = serial(17, 16, 115200, serial.SERIAL_8N1)
+            self.updates=true
+            tasmota.set_timer(40000,/->self.set_weather()) 
         end
-
     end
 
-    def every_50ms()
+    def every_100ms()
         import string
         if self.ser.available() > 0
             var msg = self.ser.read()
             if size(msg) > 0
-                log(string.format("NXP: Received Raw = %s",str(msg)), 3)
+                log(string.format("NSP: Received Raw = %s",str(msg)), 3)
                 if (self.flash_mode==1)
                     var strv = msg[0..-4].asstring()
-                    if string.find(strv,"comok 2")>=0
-                        log("FLH: Send (High Speed) flash start")
-                        self.sendnx(string.format("whmi-wris %d,115200,res0",self.flash_size))
-                    elif size(msg)==1 && msg[0]==0x08
-                        log("FLH: Waiting offset...",3)
+                    if string.find(strv,"comok 2")>=0 # Screen responds that its ready to receive inital flash setup
+                        log("FLH: (1.2 Protocol) Flashing Begin")
+                        self.flash_time = tasmota.millis()
+                        self.sendnx(string.format("whmi-wris %d,921600,res0",self.flash_size))
+                        self.ser = serial(17, 16, 921600, serial.SERIAL_8N1) # Sets faster serial speed from default 115200 so it doesn't take an hour
+                    elif size(msg)==1 && msg[0]==0x08 # Prepare to receive an offset value
+                        log("FLH: Screen requested offset...")
                         self.awaiting_offset = 1
-                    elif size(msg)==4 && self.awaiting_offset==1
+                    elif size(msg)==4 && self.awaiting_offset==1 # A new offset value has been given
                         self.awaiting_offset = 0
                         self.flash_offset = msg.get(0,4)
-                        log("FLH: Flash offset marker "+str(self.flash_offset),3)
+                        
+                        if self.flash_offset != 0
+							self.open_url(self.url, self.flash_offset)
+							self.flash_written = self.flash_offset
+						end
+                        log("FLH: New flash offset marker "+str(self.flash_offset))
                         self.write_block()
-                    elif size(msg)==1 && msg[0]==0x05
+                    elif size(msg)==1 && msg[0]==0x05 # Next Block
                         self.write_block()
                     else
-                        log("FLH: Something has gone wrong flashing firmware ["+str(msg)+"]",2)
+                        log("FLH: Something has gone wrong flashing firmware ["+str(msg)+"]")
                     end
                 else
                     var msg_list = self.split_msg(msg)
@@ -192,7 +205,7 @@ class Nextion : Driver
         end
     end      
 
-    def begin_nextion_flash()
+    def begin_nextion_flash() # Sends connect command so it actually cares
         self.flash_written = 0
         self.awaiting_offset = 0
         self.flash_offset = 0
@@ -213,117 +226,121 @@ class Nextion : Driver
     # unknown 7 (9)
 
     def set_weather()
-        import json
-        var weather_icon = {
-        "": "",      # Unknown             
-        "113": "",    # Sunny      
-        "116": "",    # PartlyCloudy   
-        "119": "",    # Cloudy             
-        "122": "",   # VeryCloudy           
-        "143": "",   # Fog                 
-        "176": "",   # LightShowers     
-        "179": "",   # LightSleetShowers 
-        "182": "",   # LightSleet        
-        "185": "",   # LightSleet        
-        "200": "",   # ThunderyShowers  
-        "227": "",   # LightSnow  
-        "230": "",   # HeavySnow        
-        "248": "",   # Fog                 
-        "260": "",   # Fog                 
-        "263": "",   # LightShowers     
-        "266": "",   # LightRain      
-        "281": '',   # LightSleet        
-        "284": "",   # LightSleet        
-        "293": "",   # LightRain      
-        "296": "",   # LightRain      
-        "299": "",   # HeavyShowers      
-        "302": "",   # HeavyRain        
-        "305": "",   # HeavyShowers      
-        "308": "",   # HeavyRain        
-        "311": "",   # LightSleet        
-        "314": "",   # LightSleet        
-        "317": "",   # LightSleet        
-        "320": "",   # LightSnow  
-        "323": "",   # LightSnowShowers 
-        "326": "",   # LightSnowShowers 
-        "329": "",   # HeavySnow        
-        "332": "",   # HeavySnow        
-        "335": "",   # HeavySnowShowers   
-        "338": "",   # HeavySnow        
-        "350": "",   # LightSleet        
-        "353": "",   # LightSleet        
-        "356": "",   # HeavyShowers      
-        "359": "",   # HeavyRain        
-        "362": "",   # LightSleetShowers 
-        "365": "",   # LightSleetShowers 
-        "368": "",   # LightSnowShowers 
-        "371": "",   # HeavySnowShowers   
-        "374": "",   # LightSleetShowers 
-        "377": "",   # LightSleet        
-        "386": "",   # ThunderyShowers  
-        "389": "",   # ThunderyHeavyRain  
-        "392": "",   # ThunderySnowShowers
-        "395": "",   # HeavySnowShowers   
-        }   
-        var cl = webclient()
-        var url = "http://wttr.in/" + "" + '?format=j2'
-        cl.set_useragent("curl/7.72.0")      
-        cl.begin(url)
-        if cl.GET() == "200" || cl.GET() == 200
-            var b = json.load(cl.get_string())
-            var temp = b['current_condition'][0]['temp_F']
-            var tmin = b['weather'][0]['mintempF']
-            var tmax = b['weather'][0]['maxtempF']
-            var wttr = '{"action":"weather","data":{"icon":"' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + '","temp":"' + temp + 'F' + '"}}'
-            # {"action":"weather","data":{"icon":"hello","temp":"50"}}
-            #var wttr = '{"HMI_weather":' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + ',"HMI_outdoorTemp":{"current":' + temp + ',"range":" ' + tmin + ', ' + tmax + '"}}'
-            self.sendnx(wttr)
-            log('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'])
-            #print('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'] + " " + wttr)
-        else
-            log('NSP: Weather update failed!', 3)     
-            print("Failed") 
+        if(self.updates==true) # Checks if updates should be disabled like for flashing
+            import json
+            var weather_icon = {
+            "": "",      # Unknown             
+            "113": "",    # Sunny      
+            "116": "",    # PartlyCloudy   
+            "119": "",    # Cloudy             
+            "122": "",   # VeryCloudy           
+            "143": "",   # Fog                 
+            "176": "",   # LightShowers     
+            "179": "",   # LightSleetShowers 
+            "182": "",   # LightSleet        
+            "185": "",   # LightSleet        
+            "200": "",   # ThunderyShowers  
+            "227": "",   # LightSnow  
+            "230": "",   # HeavySnow        
+            "248": "",   # Fog                 
+            "260": "",   # Fog                 
+            "263": "",   # LightShowers     
+            "266": "",   # LightRain      
+            "281": '',   # LightSleet        
+            "284": "",   # LightSleet        
+            "293": "",   # LightRain      
+            "296": "",   # LightRain      
+            "299": "",   # HeavyShowers      
+            "302": "",   # HeavyRain        
+            "305": "",   # HeavyShowers      
+            "308": "",   # HeavyRain        
+            "311": "",   # LightSleet        
+            "314": "",   # LightSleet        
+            "317": "",   # LightSleet        
+            "320": "",   # LightSnow  
+            "323": "",   # LightSnowShowers 
+            "326": "",   # LightSnowShowers 
+            "329": "",   # HeavySnow        
+            "332": "",   # HeavySnow        
+            "335": "",   # HeavySnowShowers   
+            "338": "",   # HeavySnow        
+            "350": "",   # LightSleet        
+            "353": "",   # LightSleet        
+            "356": "",   # HeavyShowers      
+            "359": "",   # HeavyRain        
+            "362": "",   # LightSleetShowers 
+            "365": "",   # LightSleetShowers 
+            "368": "",   # LightSnowShowers 
+            "371": "",   # HeavySnowShowers   
+            "374": "",   # LightSleetShowers 
+            "377": "",   # LightSleet        
+            "386": "",   # ThunderyShowers  
+            "389": "",   # ThunderyHeavyRain  
+            "392": "",   # ThunderySnowShowers
+            "395": "",   # HeavySnowShowers   
+            }   
+            var cl = webclient()
+            var url = "http://wttr.in/" + "36.3048,-86.6200" + '?format=j2' # Placeholder of nashville change to where you want
+            cl.set_useragent("curl/7.72.0")      
+            cl.begin(url)
+            if cl.GET() == "200" || cl.GET() == 200
+                var b = json.load(cl.get_string())
+                var temp = b['current_condition'][0]['temp_F']
+                var tmin = b['weather'][0]['mintempF']
+                var tmax = b['weather'][0]['maxtempF']
+                var wttr = '{"action":"weather","data":{"icon":"' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + '","temp":"' + temp + 'F' + '"}}'
+                # {"action":"weather","data":{"icon":"hello","temp":"50"}}
+                #var wttr = '{"HMI_weather":' + str(weather_icon[b['current_condition'][0]['weatherCode']]) + ',"HMI_outdoorTemp":{"current":' + temp + ',"range":" ' + tmin + ', ' + tmax + '"}}'
+                self.sendnx(wttr)
+                log('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'])
+                #print('NSP: Weather update for location: ' + b['nearest_area'][0]['areaName'][0]['value'] + ", "+ b['nearest_area'][0]['country'][0]['value'] + " " + wttr)
+            else
+                log('NSP: Weather update failed!', 3)     
+                print("Failed") 
+            end
         end
     end
 
     # It updates clock and date for 10 cycles then it updates the clock the date and then the weather and repeats
     def set_date()
-        var now = tasmota.rtc()
-        var time_raw = now['local']
-        var nsp_time = tasmota.time_dump(time_raw)  
-        # {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
-        if nsp_time['min'] <= 9 # Adds a 0 to pad the time if the minute is less than 9
-            if nsp_time['hour'] > 12 # Converts to 12 hour time formatting instead of 24
-                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":0" + str(nsp_time['min']) + '"}}'
-                self.sendnx(date_payload)
-                log('NSP: Time update for NSP ' + date_payload)
-            else
-                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}}'
-                self.sendnx(date_payload)
-                log('NSP: Time update for NSP ' + date_payload)
-            end
-        else 
-            if nsp_time['hour'] > 12
-                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":" + str(nsp_time['min']) + '"}}'
-                self.sendnx(date_payload)
-                log('NSP: Time update for NSP ' + date_payload)
-            else
-                var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}}'
-                self.sendnx(date_payload)
-                log('NSP: Time update for NSP ' + date_payload)
-            end
-            
-        end    
+        if(self.updates==true) # Checks if updates should be disabled like for flashing
+            var now = tasmota.rtc()
+            var time_raw = now['local']
+            var nsp_time = tasmota.time_dump(time_raw)  
+            # {"action":"date","data":{"date":"02|28|2022","time":"50:20"}}
+            if nsp_time['min'] <= 9 # Adds a 0 to pad the time if the minute is less than 9
+                if nsp_time['hour'] > 12 # Converts to 12 hour time formatting instead of 24
+                    var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":0" + str(nsp_time['min']) + '"}}'
+                    self.sendnx(date_payload)
+                    log('NSP: Time update for NSP ' + date_payload)
+                else
+                    var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":0" + str(nsp_time['min']) + '"}}'
+                    self.sendnx(date_payload)
+                    log('NSP: Time update for NSP ' + date_payload)
+                end
+            else 
+                if nsp_time['hour'] > 12
+                    var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour'] - 12) + ":" + str(nsp_time['min']) + '"}}'
+                    self.sendnx(date_payload)
+                    log('NSP: Time update for NSP ' + date_payload)
+                else
+                    var date_payload = '{"action":"date","data":' + '{"date":"' + str(nsp_time['month']) + "|" + str(nsp_time['day']) + "|" + str(nsp_time['year']) + '",' + '"time":"' + str(nsp_time['hour']) + ":" + str(nsp_time['min']) + '"}}'
+                    self.sendnx(date_payload)
+                    log('NSP: Time update for NSP ' + date_payload)
+                end
+                
+            end    
 
-        if nsp_time['min'] % 10 == 0 # Every 10 minutes update the weather
-            tasmota.set_timer(20000,/->self.set_weather()) 
+            if nsp_time['min'] % 10 == 0 # Every 10 minutes update the weather
+                tasmota.set_timer(20000,/->self.set_weather()) 
+            end
         end
-
     end
 
-    def open_url(url)
+    def open_url(url, offset)
         import string
         var host
+        self.url=url
         var port
         var s1 = string.split(url,7)[1]
         var i = string.find(s1,":")
@@ -346,7 +363,9 @@ class Nextion : Driver
         self.tcp = tcpclient()
         self.tcp.connect(host,port)
         log("FLH: Connected:"+str(self.tcp.connected()),3)
-        var get_req = "GET "+url+" HTTP/1.0\r\n\r\n"
+        var get_req = "GET "+get+" HTTP/1.0\r\n"
+		get_req += string.format("Range: bytes=%d-\r\n", offset)
+		get_req += string.format("HOST: %s:%s\r\n\r\n",host,port)
         self.tcp.write(get_req)
         var a = self.tcp.available()
         i = 1
@@ -373,48 +392,44 @@ class Nextion : Driver
                 i += 1
             end
         end
-        #print(headers)
-        var tag = "Content-Length: "
-        i = string.find(headers,tag)
-        if (i>0) 
-            var i2 = string.find(headers,"\r\n",i)
-            var s = headers[i+size(tag)..i2-1]
-            self.flash_size=int(s)
+        print(headers)
+        # check http respose for code 200/206
+        if string.find(headers,"200 OK")>0 || string.find(headers,"206 Partial Content")>0
+            log("FLH: HTTP Respose is 200 OK or 206 Partial Content",3)
+		else
+            log("FLH: HTTP Respose is not 200 OK or 206 Partial Content",3)
+			print(headers)
+			return -1
         end
-        if self.flash_size==0
-            log("FLH: No size header, counting ...",3)
-            self.flash_size = size(self.flash_buff)
-            #print("counting start ...")
-            while self.tcp.connected()
-                while self.tcp.available()>0
-                    self.flash_size += size(self.tcp.readbytes())
-                end
-                tasmota.delay(50)
+        if(offset==0) # Only set flash size if there is no offset
+            var tag = "Content-Length: "
+            i = string.find(headers,tag)
+            if (i>0) 
+                var i2 = string.find(headers,"\r\n",i)
+                var s = headers[i+size(tag)..i2-1]
+                self.flash_size=int(s)
             end
-            #print("counting end ...",self.flash_size)
-            self.tcp.close()
-            self.open_url(url)
-        else
-            log("FLH: Size found in header, skip count",3)
+            log("FLH: Flash file size: "+str(self.flash_size),3)
         end
-        log("FLH: Flash file size: "+str(self.flash_size),3)
-
+       
     end
 
     def flash_nextion(url)
+        self.updates=false
         self.flash_size = 0
-        self.open_url(url)
+        self.open_url(url,0)
         self.begin_nextion_flash()
     end
 
     def init() 
-        log("NXP: Initializing Driver")
+        log("NSP: Initializing Driver")
         self.ser = serial(17, 16, 115200, serial.SERIAL_8N1)
         self.sendnx('DRAKJHSUYDGBNCJHGJKSHBDN')
         self.sendnx('rest')
         self.flash_mode = 0
         tasmota.set_timer(20000,/->tasmota.publish_result('{"status":"init"}', "RESULT")) 
-        log("NXP: Sent Init")
+        log("NSP: Sent Init")
+        self.updates=true
     end
 
 end
@@ -431,8 +446,9 @@ def flash_nextion(cmd, idx, payload, payload_json)
     tasmota.resp_cmnd_done()
 end
 
-def send_cmd(cmd, idx, payload, payload_json) # Sends command via serial with nextion end of FFFFFF
+def send_cmd(cmd, idx, payload, payload_json) # Sends command via serial with nextion end of FFFFFF used for protocol reparse
     nextion.sendnx(payload)
+    tasmota.resp_cmnd_done()
 end
 
 tasmota.add_cmd('Nextion', send_cmd)

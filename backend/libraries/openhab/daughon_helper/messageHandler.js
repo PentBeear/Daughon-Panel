@@ -27,6 +27,5 @@ class messageHandler {
     }
 }
 
-
 exports.Person = Person;
 exports.messageHandler = messageHandler;

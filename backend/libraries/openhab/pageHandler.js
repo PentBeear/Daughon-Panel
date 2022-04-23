@@ -1,5 +1,6 @@
 // Just stores pages i guess
 class page {
+    // Change info to actually store just page info, and build the json from the type name and etc
     constructor(type, name, page, btn, depth, info) {
         this.type = type;
         this.info = info;
@@ -8,7 +9,7 @@ class page {
         this.name = name;
         this.btn=btn;
     }
-
+   // "{-action-:-page-,-data-:{-type-:-0-,-name-:-Bedroom-,-info-:[-btn=0,type=5,name=Fan,icon=,state=\${this.#convertState(items.getItem('BedroomFan_Power').state.toString())}-,-btn=1,type=5,name=Closet,icon=,state=\${this.#convertState(items.getItem('BedroomClosetLight_Power').state.toString())}-,-btn=2,type=1,name=Light,icon=,state=\${this.#convertState(items.getItem('BedroomLightOne_Power').state.toString())}-,-btn=3,type=7,name=Scenes,icon=,state=0-,-btn=4,type=4,name=hidden,icon=2-,-btn=5,type=2,name=hidden,icon=0,state=0-]}}"
     #convertState(state){
         if (state.toLowerCase()=="on"){
           return "1";
@@ -16,9 +17,15 @@ class page {
           return "0";
         }
     }
-   
+
+    
+   // // -btn=0,type=5,name=Fan,icon=,state=\${this.#convertState(items.getItem('BedroomFan_Power').state.toString())}-,-btn=1,type=5,name=Closet,icon=,state=\${this.#convertState(items.getItem('BedroomClosetLight_Power').state.toString())}-,-btn=2,type=1,name=Light,icon=,state=\${this.#convertState(items.getItem('BedroomLightOne_Power').state.toString())}-,-btn=3,type=7,name=Scenes,icon=,state=0-,-btn=4,type=4,name=hidden,icon=2-,-btn=5,type=2,name=hidden,icon=0,state=0-
     toString(){   
-        return eval("`" + this.info.replaceAll("-","\"") + "`"); // Creates a template literal and evaluates it (Ha eval)
+      var pageBuilder = JSON.parse('{"action":"page","data":{"type":"0","name":"null","info":[]}}'); // Template page
+      pageBuilder["data"]["type"] = this.type.toString();
+      pageBuilder["data"]["name"] = this.name.toString();
+      pageBuilder["data"]["info"] = eval("`[" + this.info + "]`"); // Creates a template literal and evaluates it (Ha eval)
+      return JSON.stringify(pageBuilder).replaceAll("\\","").replace('"info":"','"info":').replace('"}}',"}}")
     }
 
     getType(){

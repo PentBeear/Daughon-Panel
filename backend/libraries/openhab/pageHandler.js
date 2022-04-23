@@ -131,8 +131,8 @@ class pageHandler {
         }
     }
 
-    sendPage(page,btn,depth,pageArray,force){ // This also processes the page array to get the required page
-        console.log("Sending Page based on: " + "page:" + page + " btn:" + btn + " depth:" + depth + " force:" + force)
+    sendPage(page,btn,depth,pageArray){ // This also processes the page array to get the required page
+        console.log("Sending Page based on: " + "page:" + page + " btn:" + btn + " depth:" + depth)
         var mqttMessage = "";
 
         // Loops through all the pages for the correct one to send (Lazy)
@@ -145,28 +145,9 @@ class pageHandler {
             }
         });
 
-        if(force==true)
-        {
-          if(depth<0){ // Make this do the force_disp instead of page action
-            actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false); 
-          } else {
-            // Selects page, btn number, and depth
-            actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
-          }  
-        } else {
-          if(depth<0){ // If depth is less than 0 we know we are wanting the default page else we know to grab a specific nest
-            actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false); 
-          } else {
-            // Selects page, btn number, and depth
-            actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
-          }
-        }
-      }
-
-
+        actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
+    }
 }
-
-
 
 exports.page = page;
 exports.pageHandler = pageHandler;

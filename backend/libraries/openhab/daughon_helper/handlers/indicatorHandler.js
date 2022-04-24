@@ -13,7 +13,7 @@ class indicatorHandler {
             items.getItem(this.pageItem).sendCommand("0"); // Home Page
             items.getItem(this.depthItem).sendCommand("-1"); // -1 when disabled (No Nesting)
             } else if (update["indicator"] == "sleep"){
-                console.log("Successfully read indicator: " + update["indicator"]);
+            console.log("Successfully read indicator: " + update["indicator"]);
             items.getItem(this.submenuItem).sendCommand("-1"); // -1 when disabled (No Submenu)
             items.getItem(this.pageItem).sendCommand("-1"); // -1 when disabled (Sleep)
             items.getItem(this.depthItem).sendCommand("-1"); // -1 when disabled (No Nesting)

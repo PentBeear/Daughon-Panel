@@ -71,6 +71,7 @@ class Nextion : Driver
       return crc
     end
 
+    #-
     def encode(payload) # Adds header so panel can know what to expect of course
       var b = bytes()
       b += self.header
@@ -89,6 +90,7 @@ class Nextion : Driver
       b.add(msg_crc, 2)       # crc 2 bytes, little endian
       return b
     end
+    -#
 
     def encodenx(payload)
         var b = bytes().fromstring(payload)
@@ -103,6 +105,7 @@ class Nextion : Driver
         #log(string.format("NSP: Nextion command sent = %s",str(payload_bin)))       
     end
 
+    #- Unused
     def send(payload)
         var payload_bin = self.encode(payload)
         if self.flash_mode==1
@@ -112,6 +115,7 @@ class Nextion : Driver
             log("NSP: payload sent = " + str(payload_bin), 3)
         end
     end
+    -#
 
     def screeninit()
         log("NSP: Screen Initialized", 1) 

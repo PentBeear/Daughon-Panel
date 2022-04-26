@@ -1,4 +1,4 @@
-class page { // Page class, defines a page by type, name, number, btn, depth, info
+class Page { // Page class, defines a page by type, name, number, btn, depth, info
   constructor(type, name, btn, page, depth, info) {
       this.type = type; // Page Type
       this.info = info; // Page Info
@@ -55,7 +55,7 @@ class page { // Page class, defines a page by type, name, number, btn, depth, in
 }
 
 // Works somehow
-class pageHandler {
+class PageHandler {
   #submenuJSON = "" // Private JSON Object
   constructor(submenuItem, depthItem, pageItem, submenuArrayItem, mqttBroker, commandTopic) {
       this.submenuItem = submenuItem;
@@ -157,5 +157,5 @@ class pageHandler {
   }
 }
 
-exports.page = page;
-exports.pageHandler = pageHandler;
+exports.Page = Page;
+exports.PageHandler = PageHandler;

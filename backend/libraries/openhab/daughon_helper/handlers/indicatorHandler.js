@@ -1,4 +1,4 @@
-class indicatorHandler {
+class IndicatorHandler {
     constructor(submenuItem, depthItem, pageItem) {
         this.submenuItem = submenuItem;
         this.depthItem = depthItem;
@@ -34,4 +34,4 @@ class indicatorHandler {
     }
 }
 
-exports.indicatorHandler = indicatorHandler;
+exports.IndicatorHandler = IndicatorHandler;

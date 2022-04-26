@@ -12,7 +12,7 @@ class Person { // just a person
     }
 }
 
-class messageHandler {
+class MessageHandler {
     constructor(telegram) {
         this.telegram = telegram;
     } 
@@ -28,4 +28,4 @@ class messageHandler {
 }
 
 exports.Person = Person;
-exports.messageHandler = messageHandler;
+exports.MessageHandler = MessageHandler;

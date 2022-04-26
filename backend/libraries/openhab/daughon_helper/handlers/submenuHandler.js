@@ -8,7 +8,7 @@
 
 // {"indicator":"submenu","data":{"btn":"1","page":"1","depth":"-1"}}
 // {"indicator":"exit_submenu"}
-class submenu { // Button class that holds its specific location on the panel
+class Submenu { // Button class that holds its specific location on the panel
 
     constructor(btn, page, depth, info) {
         this.btn = btn;
@@ -39,7 +39,7 @@ class submenu { // Button class that holds its specific location on the panel
     }
 }
 
-class submenuHandler { 
+class SubmenuHandler { 
     constructor(mqttBroker,commandTopic) {
         this.mqttBroker = mqttBroker;
         this.commandTopic = commandTopic;
@@ -60,5 +60,5 @@ class submenuHandler {
 }
 
 
-exports.submenu = submenu;
-exports.submenuHandler = submenuHandler;
+exports.Submenu = Submenu;
+exports.SubmenuHandler = SubmenuHandler;

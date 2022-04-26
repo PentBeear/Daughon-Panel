@@ -1,4 +1,4 @@
-class button { // Button class that holds its specific location on the panel
+class Button { // Button class that holds its specific location on the panel
     constructor(btn, page, depth) {
         this.btn = btn;
         this.page = page;
@@ -67,7 +67,7 @@ class button { // Button class that holds its specific location on the panel
     }
 }
 
-class buttonHandler { 
+class ButtonHandler { 
     constructor() {
         
     }
@@ -82,5 +82,5 @@ class buttonHandler {
     }
 }
 
-exports.button = button;
-exports.buttonHandler = buttonHandler;
+exports.Button = Button;
+exports.ButtonHandler = ButtonHandler;

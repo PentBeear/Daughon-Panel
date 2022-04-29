@@ -1,7 +1,6 @@
 class Page { // Page class, defines a page by type, name, number, btn, depth, info
-  constructor(type, name, btn, page, depth, info) {
+  constructor(type, name, btn, page, depth) {
       this.type = type; // Page Type
-      this.info = info; // Page Info
       this.page = page; // Page Number
       this.depth = depth; // Page Depth
       this.name = name; // Page Name
@@ -17,15 +16,9 @@ class Page { // Page class, defines a page by type, name, number, btn, depth, in
   }
 
   // -btn=0,type=5,name=Fan,icon=,state=\${this.#convertState(items.getItem('BedroomFan_Power').state.toString())}-,-btn=1,type=5,name=Closet,icon=,state=\${this.#convertState(items.getItem('BedroomClosetLight_Power').state.toString())}-,-btn=2,type=1,name=Light,icon=,state=\${this.#convertState(items.getItem('BedroomLightOne_Power').state.toString())}-,-btn=3,type=7,name=Scenes,icon=,state=0-,-btn=4,type=4,name=hidden,icon=2-,-btn=5,type=2,name=hidden,icon=0,state=0-
-  toString(){ // Returns a json string that contains the page supports evaluated item states
-    /*
-    var pageBuilder = JSON.parse('{"action":"page","data":{"type":"0","name":"null","info":[]}}'); // Template page
-    pageBuilder["data"]["type"] = this.type.toString();
-    pageBuilder["data"]["name"] = this.name.toString();
-    pageBuilder["data"]["info"] = eval("`[" + this.info + "]`"); // Creates a template literal and evaluates it (Ha eval)
-    return JSON.stringify(pageBuilder).replaceAll("\\","").replace('"info":"','"info":').replace('"}}',"}}")
-    */
-   return `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":[${eval("`" + this.info + "`")}]}}`
+  toString(){ // User defined
+    // `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":[${eval("`" + this.info + "`")}]}}`
+    return "null"
   }
 
   getType(){
@@ -148,11 +141,10 @@ class PageHandler {
           //console.log("running page reader");
           if(item.getDepth() == depth && item.getPage() == page && item.getBtn() == btn)
           {
-            console.log(item.toString());
-            mqttMessage=item.toString();
+            mqttMessage=item.toString();   
           }
       });
-      
+      console.log(mqttMessage);
       actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
   }
 }

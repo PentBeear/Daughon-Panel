@@ -10,20 +10,14 @@
 // {"indicator":"exit_submenu"}
 class Submenu { // Button class that holds its specific location on the panel
 
-    constructor(btn, page, depth, info) {
+    constructor(btn, page, depth) {
         this.btn = btn;
         this.page = page;
         this.depth = depth;
-        this.info = info;
     }
 
-    hsbtorgb(openhabItem){
-
-    }
-
-    toString(){
-        var HSBType = Java.type('org.openhab.core.library.types.HSBType'); // Pulls in HSB type so you can do color conversions
-        return eval("`" + this.info + "`"); // Returns evaluated template literal info
+    toString(){ // User defined
+        return "null";
     }
 
     getBtn(){

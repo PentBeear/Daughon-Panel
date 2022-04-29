@@ -39,7 +39,7 @@ class Panel {
         this.buttonHandler = new buttonsI.ButtonHandler();
     } 
     // messageHandler,people,pageHandler,pages,indicatorHandler,buttonHandler,buttons,submenuHandler,submenus
-     runPanel(update){ // Takes all the user defined handlers, pages, buttons and etc and sends it off to the required place
+    runPanel(update){ // Takes all the user defined handlers, pages, buttons and etc and sends it off to the required place
         if(update["indicator"] == "submenu" ){
             console.log("Refreshing submenu")
             this.submenuHandler.submenuParser(update,this.submenus);

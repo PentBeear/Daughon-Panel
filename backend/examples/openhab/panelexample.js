@@ -21,11 +21,13 @@ function wrapper(){
   // Page List Modify to display what page you want, Don't change the home defaults (page 0)
   // type, name, page, btn, depth, info
   // Create your pages with your types names and etc
-  var pages = [new daughon.pages.Page(0,"Bedroom",-1,1,-1,'"btn=0,type=5,name=Fan,icon=,state=\${this.#convertState(items.getItem("BedroomFan_Power").state.toString())}","btn=1,type=5,name=Closet,icon=,state=\${this.#convertState(items.getItem("BedroomClosetLight_Power").state.toString())}","btn=2,type=1,name=Light,icon=,state=\${this.#convertState(items.getItem("BedroomLightOne_Power").state.toString())}","btn=3,type=7,name=Scenes,icon=,state=0","btn=4,type=4,name=hidden,icon=2","btn=5,type=2,name=hidden,icon=0,state=0"'),
-              new daughon.pages.Page(0,"Bedroom",3,1,0,'"btn=0,type=6,name=Blue,icon=,state=0","btn=1,type=6,name=Off,icon=,state=0","btn=2,type=7,name=hidden,icon=,state=0","btn=3,type=7,name=hidden,icon=,state=0","btn=4,type=4,name=hidden,icon=2","btn=5,type=2,name=hidden,icon=0,state=0"'),
+  var pages = [new daughon.pages.Page(0,"Bedroom",-1,1,-1),
+              new daughon.pages.Page(0,"Bedroom",3,1,0),
+              new daughon.pages.Page(1,"amogus",-1,2,-1),
               ]; // btn -1 page 1 depth -1, btn 3 page 1 depth 0
   
   // These dont have to be one liners, it just has to return a valid json message
+  // Page 1
   pages[0].toString = function(){ // User defined function that setups what is sent to the panel
     return `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":[${eval("`" + '"btn=0,type=5,name=Fan,icon=,state=\${items.getItem("BedroomFan_Power").state.toString() == "ON" ? "1" : "0"}","btn=1,type=5,name=Closet,icon=,state=\${items.getItem("BedroomClosetLight_Power").state.toString() == "ON" ? "1" : "0"}","btn=2,type=1,name=Light,icon=,state=\${items.getItem("BedroomLightOne_Power").state.toString() == "ON" ? "1" : "0"}","btn=3,type=7,name=Scenes,icon=,state=0","btn=4,type=4,name=hidden,icon=2","btn=5,type=2,name=hidden,icon=0,state=0"' + "`")}]}}`
   }
@@ -35,13 +37,18 @@ function wrapper(){
     return `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":[${eval("`" + '"btn=0,type=6,name=Blue,icon=,state=0","btn=1,type=6,name=Off,icon=,state=0","btn=2,type=7,name=hidden,icon=,state=0","btn=3,type=7,name=hidden,icon=,state=0","btn=4,type=4,name=hidden,icon=2","btn=5,type=2,name=hidden,icon=0,state=0"' + "`")}]}}`
   }
   
+  // Page 2
+  pages[2].toString = function(){ // User defined function that setups what is sent to the panel
+    return `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":["btn=0,type=0,name=aaaaabbbb,icon=,state=1","btn=1,type=1,name=b,icon=,state=1","btn=2,type=2,name=c,icon=,state=1","btn=3,type=3,name=d,icon=0,state=1","btn=4,type=4,name=e,icon=2,state=1","btn=5,type=5,name=f,icon=0,state=1","btn=6,type=6,name=g,icon=0,state=static","btn=7,type=8,name=temp,icon=0,state=73F"]}}`
+  }
+  
 
   // submenuItem, depthItem, pageItem
   // Create your indicator parser with your required items
   //var indicatorHandler = new daughon.indicators.indicatorHandler("BedroomNSPanel_Submenu","BedroomNSPanel_Depth","BedroomNSPanel_Page");
   
   // Submenu handler sends command to refresh submenu on entry
-  //var submenuHandler = new daughon.submenus.submenuHandler("mqtt:broker:9882e1ef27","cmnd/tasmota_bedroom_nspanel/nextion");
+  //var submenuHandler = new daughon.submenus.submenuHandler("mqtt:broker:x","cmnd/tasmota_bedroom_nspanel/nextion");
   
   // '{"action":"refresh","data":{"r":"1","g":"1","b":"1","brightness":"\${items.getItem("BedroomLightOne_Color").state.toString().substring(items.getItem("BedroomLightOne_Color").state.toString().lastIndexOf(",") +1)}","w":"\${(items.getItem("BedroomLightOne_White").state.toString())}","t0":"D","t1":"W"}}'
   // Submenu for Button 2, page 1, depth -1 so if i press and hold button 2 at page 1 depth -1 it sends this command to update the submenu entered
@@ -50,7 +57,7 @@ function wrapper(){
   // Submenu btn 2 page 1 depth -1 is defined as what is returned in the toString function like how pages are handled
   submenus[0].toString = function(){ // User defined function that setups what is sent to the panel
     var HSBType = Java.type('org.openhab.core.library.types.HSBType'); // Pulls in HSB type so you can do color conversions
-    return eval("`" + '{"action":"refresh","data":{"r":"\${Math.round(new HSBType(items.getItem("BedroomLightOne_Color").state.toString()).getRed()*2.55).toString()}","g":"\${Math.round(new HSBType(items.getItem("BedroomLightOne_Color").state.toString()).getGreen()*2.55).toString()}","b":"\${Math.round(new HSBType(items.getItem("BedroomLightOne_Color").state.toString()).getBlue()*2.55).toString()}","state":"\${items.getItem("BedroomLightOne_Power").state.toString() == "ON" ? "1" : "0"}","t0val":"\${Math.round(parseInt(items.getItem("BedroomLightOne_Color").state.toString().substring(items.getItem("BedroomLightOne_Color").state.toString().lastIndexOf(",") +1))*2.55).toString() }","t1val":"\${(items.getItem("BedroomLightOne_White").state.toString())}","t0":"B","t1":"W"}}' + "`");
+    return eval("`" + '{"action":"refresh","data":{"r":"\${Math.round(new HSBType(items.getItem("BedroomLightOne_Color").state.toString()).getRed()*2.55).toString()}","g":"\${Math.round(new HSBType(items.getItem("BedroomLightOne_Color").state.toString()).getGreen()*2.55).toString()}","b":"\${Math.round(new HSBType(items.getItem("BedroomLightOne_Color").state.toString()).getBlue()*2.55).toString()}","state":"\${items.getItem("BedroomLightOne_Power").state.toString() == "ON" ? "1" : "0"}","slider0":"\${Math.round(parseInt(items.getItem("BedroomLightOne_Color").state.toString().substring(items.getItem("BedroomLightOne_Color").state.toString().lastIndexOf(",") +1))*2.55).toString() }","slider1":"\${(items.getItem("BedroomLightOne_White").state.toString())}","t0":"B","t1":"W"}}' + "`");
   }
   
 
@@ -115,10 +122,11 @@ function wrapper(){
     items.getItem('BedroomLightTwo_Power').sendCommand("ON");
   }
   
-  buttons[2].white = function(update){
-    items.getItem('BedroomLightOne_White').sendCommand(update["data"]["w"]);
-    items.getItem('BedroomLightThree_White').sendCommand(update["data"]["w"]);
-    items.getItem('BedroomLightTwo_White').sendCommand(update["data"]["w"]);
+  // I setup slider 1 to be white so i grab that value and set it here
+  buttons[2].slider = function(update){
+    items.getItem('BedroomLightOne_White').sendCommand(update["data"]["slider1"]);
+    items.getItem('BedroomLightThree_White').sendCommand(update["data"]["slider1"]);
+    items.getItem('BedroomLightTwo_White').sendCommand(update["data"]["slider1"]);
     items.getItem('BedroomLightOne_Power').sendCommand("ON");
     items.getItem('BedroomLightThree_Power').sendCommand("ON");
     items.getItem('BedroomLightTwo_Power').sendCommand("ON");

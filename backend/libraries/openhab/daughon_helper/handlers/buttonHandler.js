@@ -5,7 +5,7 @@ class Button { // Button class that holds its specific location on the panel
         this.depth = depth;
     }
 
-    getBtn(){
+    getBtn(up){
         return this.btn;
     }
 
@@ -22,14 +22,8 @@ class Button { // Button class that holds its specific location on the panel
             case 'color':
                 this.color(update);
                 break;
-            case 'kelvin':
-                this.kelvin(update);
-                break;
-            case 'white':
-                this.white(update);
-                break;
-            case 'dimmer':
-                this.dimmer(update);
+            case 'slider':
+                this.slider(update);
                 break;  
             case 'toggle':
                 this.toggle(update);
@@ -42,27 +36,19 @@ class Button { // Button class that holds its specific location on the panel
         }
     }
 
-    color(){
+    color(update){
 
     }
 
-    kelvin(){
+    slider(update){
 
     }
 
-    white(){
+    toggle(update){
 
     }
 
-    dimmer(){
-
-    }
-
-    toggle(){
-
-    }
-
-    run(){
+    run(update){
 
     }
 }

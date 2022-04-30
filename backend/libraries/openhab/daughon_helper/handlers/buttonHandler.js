@@ -22,9 +22,15 @@ class Button { // Button class that holds its specific location on the panel
             case 'color':
                 this.color(update);
                 break;
-            case 'slider':
-                this.slider(update);
-                break;  
+            case 'slider0':
+                this.slider0(update);
+                break;
+            case 'slider1':
+                this.slider1(update);
+                break; 
+            case 'slider2':
+                this.slider2(update);
+                break;     
             case 'toggle':
                 this.toggle(update);
                 break;  
@@ -40,7 +46,15 @@ class Button { // Button class that holds its specific location on the panel
 
     }
 
-    slider(update){
+    slider0(update){
+
+    }
+
+    slider1(update){
+
+    }
+
+    slider2(update){
 
     }
 

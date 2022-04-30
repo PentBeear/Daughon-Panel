@@ -48,7 +48,7 @@ function wrapper(){
   //var indicatorHandler = new daughon.indicators.indicatorHandler("BedroomNSPanel_Submenu","BedroomNSPanel_Depth","BedroomNSPanel_Page");
   
   // Submenu handler sends command to refresh submenu on entry
-  //var submenuHandler = new daughon.submenus.submenuHandler("mqtt:broker:x","cmnd/tasmota_bedroom_nspanel/nextion");
+  //var submenuHandler = new daughon.submenus.submenuHandler("mqtt:broker:9882e1ef27","cmnd/tasmota_bedroom_nspanel/nextion");
   
   // '{"action":"refresh","data":{"r":"1","g":"1","b":"1","brightness":"\${items.getItem("BedroomLightOne_Color").state.toString().substring(items.getItem("BedroomLightOne_Color").state.toString().lastIndexOf(",") +1)}","w":"\${(items.getItem("BedroomLightOne_White").state.toString())}","t0":"D","t1":"W"}}'
   // Submenu for Button 2, page 1, depth -1 so if i press and hold button 2 at page 1 depth -1 it sends this command to update the submenu entered
@@ -122,8 +122,9 @@ function wrapper(){
     items.getItem('BedroomLightTwo_Power').sendCommand("ON");
   }
   
+  // Its a plea bargain to have all slider active under one umbrellla..
   // I setup slider 1 to be white so i grab that value and set it here
-  buttons[2].slider = function(update){
+  buttons[2].slider1 = function(update){
     items.getItem('BedroomLightOne_White').sendCommand(update["data"]["slider1"]);
     items.getItem('BedroomLightThree_White').sendCommand(update["data"]["slider1"]);
     items.getItem('BedroomLightTwo_White').sendCommand(update["data"]["slider1"]);

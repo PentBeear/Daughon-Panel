@@ -5,7 +5,7 @@ class Button { // Button class that holds its specific location on the panel
         this.depth = depth;
     }
 
-    getBtn(up){
+    getBtn(){
         return this.btn;
     }
 
@@ -74,7 +74,8 @@ class ButtonHandler {
 
     buttonParser(update,btnArray){ // Another lazy way of checking which button is correct
         btnArray.forEach(function(item) {
-            if(item.getDepth() == parseInt(update["data"]["depth"]) && item.getPage() == parseInt(update["data"]["page"]) && item.getBtn() == parseInt(update["data"]["btn"]))
+            // This uses string as to allow for the possibility of having buttons be named with a string, for special pages like Music Players
+            if(item.getDepth().toString() == update["data"]["depth"] && item.getPage().toString() ==update["data"]["page"] && item.getBtn().toString() == update["data"]["btn"])
             {
               item.execute(update["data"]["action"],update); // Runs action
             }

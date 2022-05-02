@@ -144,8 +144,12 @@ class PageHandler {
             mqttMessage=item.toString();   
           }
       });
-      console.log(mqttMessage);
-      actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
+      if(mqttMessage==""){
+        console.log("No valid page!");
+      } else {
+        console.log(mqttMessage);
+        actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
+      }
   }
 }
 

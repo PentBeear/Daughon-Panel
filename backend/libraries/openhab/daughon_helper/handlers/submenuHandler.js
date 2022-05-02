@@ -48,8 +48,12 @@ class SubmenuHandler {
                 mqttMessage = item.toString();
             }
         });
-        console.log("Submenu Update: " + mqttMessage);
-        actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);
+        if(mqttMessage==""){
+            console.log("No valid page!");
+        } else {
+            console.log("Submenu Update: " + mqttMessage);
+            actions.get("mqtt", this.mqttBroker).publishMQTT(this.commandTopic, mqttMessage ,false);  
+        }
     }
 
 }

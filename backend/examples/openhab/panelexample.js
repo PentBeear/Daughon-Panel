@@ -23,7 +23,7 @@ function wrapper(){
   // Create your pages with your types names and etc
   var pages = [new daughon.pages.Page(0,"Bedroom",-1,1,-1),
               new daughon.pages.Page(0,"Bedroom",3,1,0),
-              new daughon.pages.Page(1,"amogus",-1,2,-1),
+              new daughon.pages.Page(2,"Music",-1,2,-1),
               ]; // btn -1 page 1 depth -1, btn 3 page 1 depth 0
   
   // These dont have to be one liners, it just has to return a valid json message
@@ -39,7 +39,7 @@ function wrapper(){
   
   // Page 2
   pages[2].toString = function(){ // User defined function that setups what is sent to the panel
-    return `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":["btn=0,type=0,name=aaaaabbbb,icon=,state=1","btn=1,type=1,name=b,icon=,state=1","btn=2,type=2,name=c,icon=,state=1","btn=3,type=3,name=d,icon=0,state=1","btn=4,type=4,name=e,icon=2,state=1","btn=5,type=5,name=f,icon=0,state=1","btn=6,type=6,name=g,icon=0,state=static","btn=7,type=8,name=temp,icon=0,state=73F"]}}`
+    return `{"action":"page","data":{"type":"${this.type.toString()}","name":"${this.name.toString()}","info":["artist=jojo siwa,song=lalaland,state=play,volume=64,speaker=0,validspeaker0=Bedroom Echo Dot,validspeaker1=Closet Echo Dot,validspeaker2=bobby dot"]}}`
   }
   
 
@@ -70,11 +70,17 @@ function wrapper(){
 
   // Has to be in an array to be parsed
   var buttons = [new daughon.buttons.Button(0,1,-1), 
-                        new daughon.buttons.Button(1,1,-1),
-                        new daughon.buttons.Button(2,1,-1),
-                        new daughon.buttons.Button(0,1,0),
-                        new daughon.buttons.Button(1,1,0),
-                        new daughon.buttons.Button(5,1,-1)];
+                new daughon.buttons.Button(1,1,-1),
+                new daughon.buttons.Button(2,1,-1),
+                new daughon.buttons.Button(0,1,0),
+                new daughon.buttons.Button(1,1,0),
+                new daughon.buttons.Button("play",2,-1),
+                new daughon.buttons.Button("pause",2,-1),
+                new daughon.buttons.Button("back",2,-1),
+                new daughon.buttons.Button("forward",2,-1),
+                new daughon.buttons.Button("volume",2,-1),
+                new daughon.buttons.Button("speaker",2,-1),
+                ];
 
    // Update is the information from the panel, you can parse it to get things like color and other data
   buttons[0].toggle = function(update){ // Bedroom Fan
@@ -147,6 +153,31 @@ function wrapper(){
     items.getItem('BedroomClosetLight_Power').sendCommand("OFF");
     items.getItem('BedroomFan_Power').sendCommand("OFF");
     items.getItem('BedroomDeskStrip_Power').sendCommand("OFF");
+  }
+  
+  
+  buttons[5].run = function(update){ // Play
+    console.log("PLAY");
+  }
+  
+  buttons[6].run = function(update){ // Pause
+    console.log("PAUSE");
+  }
+  
+  buttons[7].run = function(update){ // Back
+    console.log("BACK");
+  }
+  
+  buttons[8].run = function(update){ // Forward
+    console.log("FORWARD");
+  }
+  
+  buttons[9].slider0 = function(update){ // Volume
+    console.log("VOLUME: " + update["data"]["slider0"]);
+  }
+  
+  buttons[10].change = function(update){ // Speaker Change
+    console.log("CHANGE: " + update["data"]["value"]);
   }
   // mqttBroker,commandTopic,submenuItem,depthItem,pageItem,submenuArrayItem,telegram,submenus,pages,people,buttons
   var Panel = new daughon.Panel("mqtt:broker:x","cmnd/tasmota_bedroom_nspanel/nextion","BedroomNSPanel_Submenu","BedroomNSPanel_Depth","BedroomNSPanel_Page","BedroomNSPanel_SubmenuList","telegram:telegramBot:x",submenus,pages,people,buttons)

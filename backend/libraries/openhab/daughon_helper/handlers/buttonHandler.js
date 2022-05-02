@@ -37,6 +37,9 @@ class Button { // Button class that holds its specific location on the panel
             case 'run':
                 this.run(update);
                 break;
+            case 'change':
+                this.change(update);
+                break;
             default:
                 console.log("Error reading type");
         }
@@ -63,6 +66,10 @@ class Button { // Button class that holds its specific location on the panel
     }
 
     run(update){
+
+    }
+
+    change(update){
 
     }
 }

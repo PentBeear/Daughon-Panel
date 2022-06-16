@@ -5,7 +5,7 @@ module.exports = {
     get messages() { return require('./handlers/messageHandler.js') },
     get submenus() { return require('./handlers/submenuHandler.js') },
     get actions() { return require('./actions/panelActions.js') },
-    get Panel() { return Panel }, // daughon.main.runPanel()
+    get Panel() { return Panel }, // daughon.Panel.runPanel()
 }
 
 // Imports for creating the panel objects
@@ -37,15 +37,16 @@ class Panel {
         this.indicatorHandler = new indicatorsI.IndicatorHandler(this.submenuItem,this.depthItem,this.pageItem);
         this.submenuHandler = new submenusI.SubmenuHandler(this.mqttBroker,this.commandTopic);
         this.buttonHandler = new buttonsI.ButtonHandler();
+        this.check = true;
     } 
     // messageHandler,people,pageHandler,pages,indicatorHandler,buttonHandler,buttons,submenuHandler,submenus
     runPanel(update){ // Takes all the user defined handlers, pages, buttons and etc and sends it off to the required place
-        if(update["indicator"] == "submenu" ){
+        if(update["indicator"] == "submenu"){
             console.log("Refreshing submenu")
             this.submenuHandler.submenuParser(update,this.submenus);
         } if(update["indicator"] != null){
             this.indicatorHandler.indicatorParser(update);
-        }  else if (update["request"] == "page" || update["update"] == "btn" && update["data"]["action"] == "nesting"){ // Sends pages on request and nesting
+        } else if (update["request"] == "page" || update["update"] == "btn" && update["data"]["action"] == "nesting"){ // Sends pages on request and nesting
             this.pageHandler.pageParser(update,this.pages);
         } else if (update["update"] == "message"){ // Handles item updates
             this.messageHandler.sendMessage(update,this.people); //    

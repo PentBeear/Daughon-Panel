@@ -69,20 +69,6 @@ class PageHandler {
       items.getItem(this.submenuArrayItem).sendCommand("");
   }
 
-  // In theory you don't need to subtract from the nest, just add or reset it. as you can overwrite values
-  #nestSubtraction(update){
-      //console.log(this.submenuArrayItem)
-      if (update["data"]["depth"].toString() == "-1" || !(items.getItem(this.submenuArrayItem).state.toString().includes("{")) ){ // If submenulist does not contain a { begin the json
-          this.nestReset() // If we subtract and theres no json just reset it
-          console.log("Reset Nest Array");
-        } else { // If we subtract and there is json we can *pop* the top element otherwise known as depth + 1
-          this.#parseSubmenuJSON();
-          delete this.#submenuJSON[(parseInt(update["data"]["depth"]) + 1)]
-          items.getItem(this.submenuArrayItem).sendCommand(JSON.stringify(this.#submenuJSON));
-          console.log(`Subtracted depth ${parseInt(update["data"]["depth"]) + 1} from Nest Array`);
-       }
-  }
-
   #nestAddition(update){ // Adds a depth to the nest array and stores the received update
       //console.log(this.submenuArrayItem)
       if (!(items.getItem(this.submenuArrayItem).state.toString().includes("{"))){ // If submenulist does not contain a { begin the json
@@ -111,7 +97,6 @@ class PageHandler {
         nest=false;
       } else if(update["update"] == "btn" && update["data"]["action"] == "nesting" && update["data"]["btn"] == "server" && parseInt(update["data"]["depth"]) > -1){ // Nesting back request
         console.log("Parsed Request is a nest down page")
-        this.#nestSubtraction(update);
         nest=true;
         back=true;
       } else if (update["update"] == "btn" && update["data"]["action"] == "nesting" && update["data"]["btn"] != "server" && parseInt(update["data"]["depth"]) > -1){  // Nesting up request

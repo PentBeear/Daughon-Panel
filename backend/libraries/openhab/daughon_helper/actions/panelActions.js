@@ -30,14 +30,7 @@ class panelActions {
 
     // Requires the use of a page object from pageHandler.js
     static force_disp(page){
-        // A recreation of page.toString
-        var pageBuilder = JSON.parse('{"action":"force_disp","data":{"page":"1","depth":"-1","type":"0","name":"null","info":[]}}'); // Template page
-        pageBuilder["data"]["page"] = page.getPage().toString();
-        pageBuilder["data"]["depth"] = page.getDepth().toString();
-        pageBuilder["data"]["type"] = page.getType().toString();
-        pageBuilder["data"]["name"] = page.getName();
-        pageBuilder["data"]["info"] = eval("`[" + page.getInfo() + "]`"); // Creates a template literal and evaluates it (Ha eval)
-        return JSON.stringify(pageBuilder).replaceAll("\\","").replace('"info":"','"info":').replace('"}}',"}}");
+        return page.toString()
     }
 
     static draw_string(x,y,w,h,font,pco,bco,xcen,ycen,sta,text){

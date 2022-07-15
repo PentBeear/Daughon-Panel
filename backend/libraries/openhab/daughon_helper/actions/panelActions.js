@@ -30,7 +30,7 @@ class panelActions {
 
     // Requires the use of a page object from pageHandler.js
     static force_disp(page){
-        return page.toString.replace("\":\"page\"","\":\"force_disp\"");
+        return page.toString().replace("\":\"page\"","\":\"force_disp\"");
     }
 
     static draw_string(x,y,w,h,font,pco,bco,xcen,ycen,sta,text){
